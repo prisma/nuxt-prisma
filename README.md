@@ -28,25 +28,25 @@ Integrate [Nuxt](https://nuxt.com/) with [Prisma](https://www.prisma.io/)
 
 ## Quick Setup
 
-1. Add `@nuxtjs/prisma` dependency to your project
+1. Add `@prisma/nuxt-prisma` dependency to your project
 
 ```bash
 # Using pnpm
-pnpm add -D @nuxtjs/prisma
+pnpm add -D @prisma/nuxt-prisma
 
 # Using yarn
-yarn add --dev @nuxtjs/prisma
+yarn add --dev @prisma/nuxt-prisma
 
 # Using npm
-npm install --save-dev @nuxtjs/prisma
+npm install --save-dev @prisma/nuxt-prisma
 ```
 
-2. Add `@nuxtjs/prisma` to the `modules` section of `nuxt.config.ts`
+2. Add `@prisma/nuxt-prisma` to the `modules` section of `nuxt.config.ts`
 
 ```ts
 export default defineNuxtConfig({
   modules: [
-    '@nuxtjs/prisma'
+    '@prisma/nuxt-prisma'
   ]
 })
 ```
@@ -58,7 +58,7 @@ You can configure the module by using the `prisma` property in your `nuxt.con
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@nuxtjs/prisma'],
+  modules: ['@prisma/nuxt-prisma'],
   prisma: {
     // Options
   },
@@ -89,7 +89,7 @@ Determines the level of error formatting.
 
 Defines an instance of a [driver adapter](https://www.prisma.io/docs/orm/overview/databases/database-drivers#driver-adapters).
 
-*Read more about Prisma Client options [here](https://www.prisma.io/docs/orm/reference/prisma-client-reference).*
+*A full list of Prisma Client options can be found [here](https://www.prisma.io/docs/orm/reference/prisma-client-reference).*
 
 
 ## Development

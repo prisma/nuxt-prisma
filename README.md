@@ -7,15 +7,14 @@ Find and replace all on all files (CMD+SHIFT+F):
 - Description: My new Nuxt module
 -->
 
-# My Module
+# Nuxt Prisma
 
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 
-My new Nuxt module for doing amazing things.
-
+Integrate [Nuxt](https://nuxt.com/) with [Prisma](https://www.prisma.io/)
 - [✨ &nbsp;Release Notes](/CHANGELOG.md)
 <!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/my-module?file=playground%2Fapp.vue) -->
 <!-- - [📖 &nbsp;Documentation](https://example.com) -->
@@ -23,36 +22,75 @@ My new Nuxt module for doing amazing things.
 ## Features
 
 <!-- Highlight some of the features your module provide here -->
-- ⛰ &nbsp;Foo
-- 🚠 &nbsp;Bar
-- 🌲 &nbsp;Baz
+- ⛰ &nbsp;later
+- 🚠 &nbsp;later
+- 🌲 &nbsp;later
 
 ## Quick Setup
 
-1. Add `my-module` dependency to your project
+1. Add `@nuxtjs/prisma` dependency to your project
 
 ```bash
 # Using pnpm
-pnpm add -D my-module
+pnpm add -D @nuxtjs/prisma
 
 # Using yarn
-yarn add --dev my-module
+yarn add --dev @nuxtjs/prisma
 
 # Using npm
-npm install --save-dev my-module
+npm install --save-dev @nuxtjs/prisma
 ```
 
-2. Add `my-module` to the `modules` section of `nuxt.config.ts`
+2. Add `@nuxtjs/prisma` to the `modules` section of `nuxt.config.ts`
 
-```js
+```ts
 export default defineNuxtConfig({
   modules: [
-    'my-module'
+    '@nuxtjs/prisma'
   ]
 })
 ```
 
-That's it! You can now use My Module in your Nuxt app ✨
+That's it! You can now use Prisma in your Nuxt app ✨
+
+## Module Options
+You can configure the module by using the `prisma` property in your `nuxt.config.ts` file.
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@nuxtjs/prisma'],
+  prisma: {
+    // Options
+  },
+})
+```
+
+### datasourceURL
+
+- **Default:** `process.env.DATABASE_URL`
+
+Database connection string to connect to your database.
+
+### log
+
+- **Default:** `[]`
+
+Determines the type and level of logging to the console.
+
+### errorFormat
+
+- **Default:** `'colorless'`
+
+Determines the level of error formatting.
+
+### adapter
+
+- **Default:**
+
+Defines an instance of a [driver adapter](https://www.prisma.io/docs/orm/overview/databases/database-drivers#driver-adapters).
+
+*Read more about Prisma Client options [here](https://www.prisma.io/docs/orm/reference/prisma-client-reference).*
+
 
 ## Development
 

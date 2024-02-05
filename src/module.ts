@@ -4,9 +4,34 @@ import { PrismaClient } from '@prisma/client';
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
-  datasourceUrl: string
-  log: string[]
+  /**
+   * Database connection string to connect to your database.
+   * @default process.env.DATABASE_URL
+   * @example 'file:./dev_qa.db'	
+   * @type string
+   * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#datasourceurl
+   */
+  datasourceUrl: string;
+
+  /**
+   * Determines the type and level of logging to the console.
+   * @default []
+   * @example ['query', 'info']
+   * @type string[]
+   * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#log
+   */
+  log?: string[];
+
+  /**
+   * Determines the level of error formatting.
+   * @default 'colorless'
+   * @type string
+   * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#errorformat
+   */
+  errorFormat?: string;
+
 }
+
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -21,21 +46,26 @@ export default defineNuxtModule<ModuleOptions>({
   },
   // Default configuration options for your module, can also be a function returning those
   defaults: {
-    datasourceUrl: process.env.DATABASE_URL,
-    log: ['query', 'info', 'warn', 'error'],
+    datasourceUrl: process.env.DATABASE_URL as string,
+    log: [],
+    errorFormat: 'colorless'
   },
   // Shorthand sugar to register Nuxt hooks
   hooks: {},
   // The function holding your module logic, it can be asynchronous
   setup(options, nuxt) {
-    const prisma = new PrismaClient()//not sure if it goes here or if there's a shorthand way of doing this
-
+    const prisma = new PrismaClient(options)
     const { resolve } = createResolver(import.meta.url)
 
-    //public runtimeConfig
+    //Public runtimeConfig
     nuxt.options.runtimeConfig.public.prisma = defu(nuxt.options.runtimeConfig.public.prisma, {
-      datasourceUrl: options.datasourceUrl,
       log: options.log,
+      errorFormat: options.errorFormat
+    })
+
+    // Private runtimeConfig
+    nuxt.options.runtimeConfig.prisma = defu(nuxt.options.runtimeConfig.prisma, {
+      datasourceUrl: options.datasourceUrl
     })
 
     //add prisma plugin 

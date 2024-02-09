@@ -1,64 +1,101 @@
 import { defineNuxtModule, addPlugin, createResolver } from '@nuxt/kit'
 import { defu } from 'defu'
-import { PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client'
+import { prompt } from 'prompts'
+import * as execa from 'execa'
 
-// Module options TypeScript interface definition
-export interface ModuleOptions {
+export interface ModuleOptions extends Prisma.PrismaClientOptions {
   /**
    * Database connection string to connect to your database.
-   * @default process.env.DATABASE_URL
-   * @example 'file:./dev_qa.db'	
-   * @type string
+   * @default process.env.DATABASE_URL //datasource url in your schema.prisma file	
    * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#datasourceurl
    */
-  datasourceUrl: string;
+  datasourceUrl?: string;
 
   /**
    * Determines the type and level of logging to the console.
-   * @default []
-   * @example ['query', 'info']
-   * @type string[]
+   * @example ['query', 'info', 'warn', 'error']
    * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#log
    */
-  log?: string[];
+  log?: (Prisma.LogLevel | Prisma.LogDefinition)[]
 
   /**
    * Determines the level of error formatting.
-   * @default 'colorless'
-   * @type string
+   * @default "colorless"
    * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#errorformat
    */
-  errorFormat?: string;
-
-}
+  errorFormat?: Prisma.ErrorFormat
+} 
 
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    // Usually the npm package name of your module
     name: '@prisma/nuxt-prisma',
     // The key in `nuxt.config` that holds your module options
-    configKey: 'nuxtPrisma',
-    // Compatibility constraints
+    configKey: 'prisma',
     compatibility: {
       nuxt: '^3.0.0'
     }
   },
-  // Default configuration options for your module, can also be a function returning those
   defaults: {
     datasourceUrl: process.env.DATABASE_URL as string,
-    log: [],
+    log: ['query', 'info', 'warn', 'error'],
     errorFormat: 'colorless'
-  },
-  // Shorthand sugar to register Nuxt hooks
-  hooks: {},
-  // The function holding your module logic, it can be asynchronous
-  setup(options, nuxt) {
-    const prisma = new PrismaClient(options)
+  } satisfies ModuleOptions,
+  
+  async setup(options, nuxt) {
+    //@ts-ignore
     const { resolve } = createResolver(import.meta.url)
 
+    const prompts = {
+      installPrismaCliPrompt: undefined as any,
+      initPrompt: undefined as any,
+      generatePrompt: undefined as any,
+      migratePrompt: undefined as any,
+    }
+
+    // Check CLI version 
+    let prismaCliVersion;
+    try {
+      prismaCliVersion = await execa.execa('npx', ['prisma', 'version'])
+    } catch (error) {
+      console.log(error)
+    }
+    if (!prismaCliVersion){
+      console.error('Prisma CLI is not installed')
+      if (prompts.installPrismaCliPrompt) return
+      prompts.installPrismaCliPrompt = prompt(
+        {
+          type: 'confirm',
+          name: 'value',
+          message: 'Do you want to install Prisma CLI?'
+        }, 
+        {
+        //clear reference to prompt
+        async onSubmit() {
+          prompts.installPrismaCliPrompt = undefined
+        },
+        async onCancel() {
+          prompts.installPrismaCliPrompt = undefined
+          },
+        },
+      ) 
+      // CLI installation
+      const response = await prompts.installPrismaCliPrompt
+      if (response?.value === true) {
+        try {
+          await execa.execaCommand('npm install prisma --save-dev')
+          // Assuming you want to get the Prisma CLI version
+          const prismaCliVersion = await execa.execa('npx', ['prisma', '--version'])
+          console.log(prismaCliVersion)
+        } catch (error) {
+          console.error('Failed to install Prisma CLI')
+        }     
+      }
+    }
+
     //Public runtimeConfig
-    nuxt.options.runtimeConfig.public.prisma = defu(nuxt.options.runtimeConfig.public.prisma, {
+    nuxt.options.runtimeConfig.public = defu(nuxt.options.runtimeConfig.public, {
       log: options.log,
       errorFormat: options.errorFormat
     })
@@ -68,8 +105,9 @@ export default defineNuxtModule<ModuleOptions>({
       datasourceUrl: options.datasourceUrl
     })
 
-    //add prisma plugin 
+    // Add Prisma plugin 
     addPlugin(resolve('./runtime/plugin'))
-    
+
   }
+
 })

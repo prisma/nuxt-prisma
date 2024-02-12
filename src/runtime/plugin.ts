@@ -9,9 +9,8 @@ export default defineNuxtPlugin({
     const options = useRuntimeConfig().public.prisma
     const prismaOptions = {
       ...options, 
-      errorFormat: options.errorFormat as Prisma.ErrorFormat | undefined, // Overrides 'errorFormat'
-    }
-    const prismaClient = new PrismaClient(prismaOptions)
+    } satisfies Prisma.PrismaClientOptions
+    const prismaClient = new PrismaClient(prismaOptions) 
 
     nuxtApp.provide('prisma', prismaClient)
   

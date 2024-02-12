@@ -39,8 +39,6 @@ export default defineNuxtModule<ModuleOptions>({
   },
   defaults: {
     datasourceUrl: process.env.DATABASE_URL as string,
-    log: ['query', 'info', 'warn', 'error'],
-    errorFormat: 'colorless'
   } satisfies ModuleOptions,
   
   async setup(options, nuxt) {
@@ -56,11 +54,6 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Check CLI version 
     let prismaCliVersion;
-    try {
-      prismaCliVersion = await execa.execa('npx', ['prisma', 'version'])
-    } catch (error) {
-      console.log(error)
-    }
     if (!prismaCliVersion){
       console.error('Prisma CLI is not installed')
       if (prompts.installPrismaCliPrompt) return
@@ -95,7 +88,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     //Public runtimeConfig
-    nuxt.options.runtimeConfig.public = defu(nuxt.options.runtimeConfig.public, {
+    nuxt.options.runtimeConfig.public.prisma = defu(nuxt.options.runtimeConfig.public.prisma, {
       log: options.log,
       errorFormat: options.errorFormat
     })

@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "name": "nuxt-prisma-playground",
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "generate": "nuxi generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.2",
+    "nuxt": "latest"
+  },
+  "devDependencies": {
+    "prettier": "3.2.5",
+    "prisma": "^5.10.2"
+  }
+}

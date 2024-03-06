@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "name": "basic",
+  "type": "module",
+  "devDependencies": {
+    "prisma": "^5.10.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.2"
+  }
+}

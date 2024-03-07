@@ -9,7 +9,7 @@ export default defineNuxtPlugin({
     const prisma = new PrismaClient({ log, errorFormat })
     return {
       provide: {
-        $prisma: prisma,
+        prisma: prisma,
       },
     }
   },

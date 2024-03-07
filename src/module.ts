@@ -2,6 +2,7 @@ import { defineNuxtModule, addPlugin, createResolver } from '@nuxt/kit'
 import { Prisma } from '@prisma/client'
 import { execa, type ExecaReturnValue} from 'execa'
 import { addCustomTab } from '@nuxt/devtools-kit'
+import defu from 'defu'
 import fs from 'fs'
 import prompts from 'prompts'
 import chalk from 'chalk'
@@ -55,6 +56,12 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {    
     const { resolve: resolveProject } = createResolver(nuxt.options.rootDir)
     const { resolve: resolver } = createResolver(import.meta.url)
+    
+    // exposing module options to application runtime
+    nuxt.options.runtimeConfig.public.prisma = defu(nuxt.options.runtimeConfig.public.prisma || {}, {
+      log: options.log,
+      errorFormat: options.errorFormat,
+    })
     
     let prismaCliVersion: ExecaReturnValue | undefined
 

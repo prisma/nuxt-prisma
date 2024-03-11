@@ -1,7 +1,8 @@
-import { defineNuxtModule, addPlugin, createResolver } from '@nuxt/kit'
+import { defineNuxtModule, addPlugin, createResolver, addImportsDir } from '@nuxt/kit'
 import { Prisma } from '@prisma/client'
 import { execa, type ExecaReturnValue} from 'execa'
 import { addCustomTab } from '@nuxt/devtools-kit'
+import { fileURLToPath } from 'url'
 import defu from 'defu'
 import fs from 'fs'
 import prompts from 'prompts'
@@ -57,6 +58,8 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {    
     const { resolve: resolveProject } = createResolver(nuxt.options.rootDir)
     const { resolve: resolver } = createResolver(import.meta.url)
+    const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
+
     
     // exposing module options to application runtime
     nuxt.options.runtimeConfig.public.prisma = defu(nuxt.options.runtimeConfig.public.prisma || {}, {
@@ -275,5 +278,6 @@ export default defineNuxtModule<ModuleOptions>({
     await setupPrismaORM()
     // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
     addPlugin(resolver('./runtime/plugin'))
+    addImportsDir(resolver(runtimeDir, 'composable'))
   }}
 )

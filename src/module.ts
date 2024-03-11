@@ -64,8 +64,6 @@ export default defineNuxtModule<ModuleOptions>({
       errorFormat: options.errorFormat,
     })
     
-    let prismaCliVersion: ExecaReturnValue | undefined
-
     function success(message: string) {
       console.log(chalk.green(`✔ ${message}`))
     }
@@ -75,13 +73,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     async function detectCli() {
-      try {
-        prismaCliVersion = await execa('prisma', ['version'], { cwd: resolveProject() })
-        success('Prisma CLI is installed.')
-        return prismaCliVersion
-      } catch (e) {
-        error('Prisma CLI is not installed. Please install Prisma CLI.')
-      }
+      await execa('prisma', ['version'], { cwd: resolveProject() })
     }
 
     async function installCli() {
@@ -174,8 +166,13 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     async function promptCli() {
-      let prismaCliVersion = await detectCli()
-      if (!prismaCliVersion) {
+        try {
+    			await detectCli()
+    			success('Prisma CLI is installed.')
+    			return
+    		} catch {
+    			error('Prisma CLI is not installed.')
+    		}
         const response = await prompts({
           type: 'confirm',
           name: 'installPrisma',
@@ -189,7 +186,6 @@ export default defineNuxtModule<ModuleOptions>({
         } else {
           console.log('Prisma CLI installation skipped.')
         }
-      }
     }
 
     async function promptInitPrisma() {

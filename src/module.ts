@@ -170,12 +170,12 @@ export default defineNuxtModule<ModuleOptions>({
 
     async function promptCli() {
         try {
-    			await detectCli()
-    			success('Prisma CLI is installed.')
-    			return
-    		} catch {
-    			error('Prisma CLI is not installed.')
-    		}
+          await detectCli()
+          success('Prisma CLI is installed.')
+          return
+        } catch {
+          error('Prisma CLI is not installed.')
+        }
         const response = await prompts({
           type: 'confirm',
           name: 'installPrisma',

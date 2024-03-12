@@ -1,7 +1,8 @@
-import { defineNuxtModule, addPlugin, createResolver } from '@nuxt/kit'
+import { defineNuxtModule, addPlugin, createResolver, addImportsDir } from '@nuxt/kit'
 import { Prisma } from '@prisma/client'
 import { execa, type ExecaReturnValue} from 'execa'
 import { addCustomTab } from '@nuxt/devtools-kit'
+import { fileURLToPath } from 'url'
 import defu from 'defu'
 import fs from 'fs'
 import prompts from 'prompts'
@@ -53,9 +54,12 @@ export default defineNuxtModule<ModuleOptions>({
     generateClient: true,
     installStudio: true
   },
+  // Seeking code review
   async setup(options, nuxt) {    
     const { resolve: resolveProject } = createResolver(nuxt.options.rootDir)
     const { resolve: resolver } = createResolver(import.meta.url)
+    const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
+
     
     // exposing module options to application runtime
     nuxt.options.runtimeConfig.public.prisma = defu(nuxt.options.runtimeConfig.public.prisma || {}, {
@@ -63,8 +67,6 @@ export default defineNuxtModule<ModuleOptions>({
       errorFormat: options.errorFormat,
     })
     
-    let prismaCliVersion: ExecaReturnValue | undefined
-
     function success(message: string) {
       console.log(chalk.green(`✔ ${message}`))
     }
@@ -74,13 +76,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     async function detectCli() {
-      try {
-        prismaCliVersion = await execa('prisma', ['version'], { cwd: resolveProject() })
-        success('Prisma CLI is installed.')
-        return prismaCliVersion
-      } catch (e) {
-        error('Prisma CLI is not installed. Please install Prisma CLI.')
-      }
+      await execa('prisma', ['version'], { cwd: resolveProject() })
     }
 
     async function installCli() {
@@ -173,8 +169,13 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     async function promptCli() {
-      let prismaCliVersion = await detectCli()
-      if (!prismaCliVersion) {
+        try {
+          await detectCli()
+          success('Prisma CLI is installed.')
+          return
+        } catch {
+          error('Prisma CLI is not installed.')
+        }
         const response = await prompts({
           type: 'confirm',
           name: 'installPrisma',
@@ -188,7 +189,6 @@ export default defineNuxtModule<ModuleOptions>({
         } else {
           console.log('Prisma CLI installation skipped.')
         }
-      }
     }
 
     async function promptInitPrisma() {
@@ -278,5 +278,6 @@ export default defineNuxtModule<ModuleOptions>({
     await setupPrismaORM()
     // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
     addPlugin(resolver('./runtime/plugin'))
+    addImportsDir(resolver(runtimeDir, 'composable'))
   }}
 )

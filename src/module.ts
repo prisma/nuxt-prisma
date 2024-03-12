@@ -54,7 +54,6 @@ export default defineNuxtModule<ModuleOptions>({
     generateClient: true,
     installStudio: true
   },
-  // Seeking code review
   async setup(options, nuxt) {    
     const { resolve: resolveProject } = createResolver(nuxt.options.rootDir)
     const { resolve: resolver } = createResolver(import.meta.url)

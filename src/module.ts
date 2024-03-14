@@ -1,6 +1,6 @@
 import { defineNuxtModule, addPlugin, createResolver, addImportsDir } from '@nuxt/kit'
 import { Prisma } from '@prisma/client'
-import { execa, type ExecaReturnValue} from 'execa'
+import { execa } from 'execa'
 import { addCustomTab } from '@nuxt/devtools-kit'
 import { fileURLToPath } from 'url'
 import defu from 'defu'
@@ -46,6 +46,8 @@ export default defineNuxtModule<ModuleOptions>({
   // Default configuration options of the Nuxt module
   defaults: {
     datasourceUrl: process.env.DATABASE_URL,
+    log: ['query', 'info', 'warn', 'error'],
+    errorFormat: 'colorless',
     installCli: true,
     initPrisma: true,
     writeToSchema: true,
@@ -160,7 +162,7 @@ export default defineNuxtModule<ModuleOptions>({
         try {
           const { spawn } = require('child_process')
           await spawn('npx', ['prisma', 'studio', '--browser none'], {cwd: resolveProject()})
-          success('Prisma Studio installed. You can view it as a tab in Nuxt DevTools.')        
+          success('Prisma Studio installed. You can view it as a tab in Nuxt DevTools.')
         } catch (e) {
           error('Failed to install Prisma Studio.')
         }

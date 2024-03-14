@@ -84,7 +84,7 @@ export default defineNuxtModule<ModuleOptions>({
       if (options.installCli){
         try {
           await execa('npm', ['install', 'prisma', '--save-dev'], {cwd: resolveProject()})
-        } catch (e) {
+        } catch {
           error('Failed to install Prisma CLI.')
         }
       }
@@ -95,7 +95,7 @@ export default defineNuxtModule<ModuleOptions>({
         try {
           const { stdout: initializePrisma } = await execa('npx', ['prisma', 'init', '--datasource-provider', 'sqlite'], {cwd: resolveProject()})
           console.log(initializePrisma)
-        } catch (e) {
+        } catch {
           error('Failed to initialize Prisma project.')
         }
       }
@@ -110,7 +110,7 @@ export default defineNuxtModule<ModuleOptions>({
           // read the existing content of the schema file
           try {
             existingSchema = fs.readFileSync(prismaSchemaPath, 'utf-8')
-          } catch (e) {
+          } catch {
             error('Error reading existing schema file')
           }
           
@@ -126,10 +126,10 @@ export default defineNuxtModule<ModuleOptions>({
         
           try {
             fs.writeFileSync(prismaSchemaPath, updatedSchema)
-          } catch (e) {
+          } catch {
             error('Failed to write model to Prisma schema.')
           }
-        } catch (e) {
+        } catch {
           error('Failed to write model to Prisma schema.')
         }
       }
@@ -139,7 +139,7 @@ export default defineNuxtModule<ModuleOptions>({
       if (options.formatSchema) {
         try {
           await execa('npx', ['prisma', 'format'], {cwd: resolveProject()})
-        } catch (e) {
+        } catch {
           error('Failed to format Prisma schema file.')
         }
       }
@@ -151,7 +151,7 @@ export default defineNuxtModule<ModuleOptions>({
           await execa('npm', ['install', '@prisma/client'], {cwd: resolveProject()})
           const { stdout: generateClient } = await execa('npx', ['prisma', 'generate'],{cwd: resolveProject()})
           console.log(generateClient)
-        } catch (e) {
+        } catch {
           error('Failed to generate Prisma Client.')
         }
       }
@@ -163,7 +163,7 @@ export default defineNuxtModule<ModuleOptions>({
           const { spawn } = require('child_process')
           await spawn('npx', ['prisma', 'studio', '--browser', 'none'], {cwd: resolveProject()})
           success('Prisma Studio installed. You can view it as a tab in Nuxt DevTools.')
-        } catch (e) {
+        } catch {
           error('Failed to install Prisma Studio.')
         }
       }

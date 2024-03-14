@@ -161,7 +161,7 @@ export default defineNuxtModule<ModuleOptions>({
       if (options.installStudio) {
         try {
           const { spawn } = require('child_process')
-          await spawn('npx', ['prisma', 'studio', '--browser none'], {cwd: resolveProject()})
+          await spawn('npx', ['prisma', 'studio', '--browser', 'none'], {cwd: resolveProject()})
           success('Prisma Studio installed. You can view it as a tab in Nuxt DevTools.')
         } catch (e) {
           error('Failed to install Prisma Studio.')

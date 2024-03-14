@@ -93,7 +93,7 @@ export default defineNuxtModule<ModuleOptions>({
     async function initPrisma() {
       if (options.initPrisma){
         try {
-          const { stdout: initializePrisma } = await execa('npx', ['prisma', 'init'], {cwd: resolveProject()})
+          const { stdout: initializePrisma } = await execa('npx', ['prisma', 'init', '--datasource-provider', 'sqlite'], {cwd: resolveProject()})
           console.log(initializePrisma)
         } catch (e) {
           error('Failed to initialize Prisma project.')

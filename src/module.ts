@@ -33,6 +33,7 @@ export interface ModuleOptions extends Prisma.PrismaClientOptions{
   initPrisma: boolean
   writeToSchema: boolean
   formatSchema: boolean
+  runMigration: boolean
   installClient: boolean
   generateClient: boolean
   installStudio: boolean
@@ -52,6 +53,7 @@ export default defineNuxtModule<ModuleOptions>({
     initPrisma: true,
     writeToSchema: true,
     formatSchema: true,
+    runMigration: true,
     installClient: true,
     generateClient: true,
     installStudio: true
@@ -145,6 +147,17 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
+    async function runMigration() {
+      if (options.runMigration) {
+        try {
+          await execa('npx', ['prisma', 'migrate', 'dev', '--name', 'init'], {cwd: resolveProject()})
+          success('Prisma migration ran successfully.')
+        } catch {
+          error('Failed to run Prisma migration.')
+        }
+      }
+    }
+
     async function generateClient() {
       if (options.installClient && options.generateClient) {
         try {
@@ -222,6 +235,25 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
+    async function promptRunMigration() {
+      const response = await prompts({
+        type: 'confirm',
+        name: 'runMigration',
+        message: 'Do you want to run Prisma migration?',
+        initial: true
+      })
+
+      if (response?.runMigration === true) {
+        try {
+          await runMigration()
+        } catch (e: any) {
+          error(e)
+        }
+      } else {
+        console.log('Prisma migration skipped.')
+      }
+    }
+
     async function promptGenerateClient() {
       const response = await prompts({
         type: 'confirm',
@@ -273,6 +305,7 @@ export default defineNuxtModule<ModuleOptions>({
       console.log('Setting up Prisma ORM..')
       await promptCli()
       await promptInitPrisma()
+      await promptRunMigration()
       await promptGenerateClient()
       await promptInstallStudio()
     }

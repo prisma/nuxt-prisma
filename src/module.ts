@@ -312,6 +312,6 @@ export default defineNuxtModule<ModuleOptions>({
     await setupPrismaORM()
     // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
     addPlugin(resolver('./runtime/plugin'))
-    addImportsDir(resolver(runtimeDir, 'composable'))
+    addImportsDir(resolver(runtimeDir, 'composables'))
   }}
 )

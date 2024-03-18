@@ -4,5 +4,11 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
+  async function main() {
+    const prisma = usePrismaClient()
+    const posts = await prisma.post.findMany()
+    console.log(posts)
+  }
+  main()
 </script>

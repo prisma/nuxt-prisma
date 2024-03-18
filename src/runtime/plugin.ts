@@ -5,8 +5,7 @@ export default defineNuxtPlugin({
   name: 'prisma-client',
   enforce: 'pre',
   async setup() {
-    const { log, errorFormat } = useRuntimeConfig().public.prisma
-    const prisma = new PrismaClient({ log, errorFormat })
+    const prisma = new PrismaClient()
     return {
       provide: {
         prisma: prisma,

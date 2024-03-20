@@ -47,7 +47,7 @@ export default defineNuxtModule<ModuleOptions>({
   // Default configuration options of the Nuxt module
   defaults: {
     datasourceUrl: process.env.DATABASE_URL,
-    log: ['query', 'info', 'warn', 'error'],
+    log: [],
     errorFormat: 'colorless',
     installCli: true,
     initPrisma: true,

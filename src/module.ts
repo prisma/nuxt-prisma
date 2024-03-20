@@ -1,4 +1,4 @@
-import { defineNuxtModule, addPlugin, createResolver, addImportsDir } from '@nuxt/kit'
+import { defineNuxtModule, addPlugin, createResolver, addImportsDir, addPluginTemplate } from '@nuxt/kit'
 import { Prisma } from '@prisma/client'
 import { execa } from 'execa'
 import { addCustomTab } from '@nuxt/devtools-kit'
@@ -301,6 +301,15 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
+    async function writeClientPlugin(){
+      addPluginTemplate({
+        src: resolver('./runtime/plugin.ts'),
+        filename: 'plugin.ts',
+        write: true,
+        dst: resolver(process.cwd(), 'plugins/plugin.ts')
+      })
+    }
+
     async function setupPrismaORM() {
       console.log('Setting up Prisma ORM..')
       await promptCli()
@@ -308,6 +317,7 @@ export default defineNuxtModule<ModuleOptions>({
       await promptRunMigration()
       await promptGenerateClient()
       await promptInstallStudio()
+      await writeClientPlugin()
     }
     await setupPrismaORM()
     // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`

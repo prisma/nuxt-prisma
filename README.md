@@ -9,26 +9,28 @@ Integrate Prisma ORM in your Nuxt app.
 
 <!-- - [✨ &nbsp;Release Notes](/CHANGELOG.md) -->
 <!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/my-module?file=playground%2Fapp.vue) -->
-<!-- - [📖 &nbsp;Documentation](https://example.com) -->
+- [📖 &nbsp;Documentation](https://nuxt-prisma-five.vercel.app/)
 
 ## Features
 
-- ⛰ &nbsp;**Seamless Prisma ORM Setup**: Automates Prisma CLI, Prisma schema, and Prisma Client setup.
-- 🚠 &nbsp;**Integrated Visual Database Editor**: Easily access Prisma Studio within Nuxt DevTools through a custom tab.
+- Seamlessly set up Prisma CLI, Prisma schema, Prisma Migrate, and Prisma Client
+- Easily access Prisma Studio within Nuxt DevTools
+- Auto-imported `usePrismaClient()` composable for your Vue files
 
 ## Quick Setup
 
 1. Add `nuxt-prisma` dependency to your project
 
 ```bash
+# Using npm
+npm install --save-dev nuxt-prisma
+
 # Using pnpm
 pnpm add -D nuxt-prisma
 
 # Using yarn
 yarn add --dev nuxt-prisma
 
-# Using npm
-npm install --save-dev nuxt-prisma
 ```
 
 2. Add `nuxt-prisma` to the `modules` section of `nuxt.config.ts`
@@ -51,7 +53,10 @@ export default defineNuxtConfig({
     'nuxt-prisma'
   ],
   prisma: {
-    /* module options */
+    /* default module options */
+    datasourceUrl: process.env.DATABASE_URL,
+    log: ['query', 'info', 'warn', 'error'],
+    errorFormat: 'colorless',
   }
 })
 ```

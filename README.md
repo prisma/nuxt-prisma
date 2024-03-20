@@ -55,7 +55,7 @@ export default defineNuxtConfig({
   prisma: {
     /* default module options */
     datasourceUrl: process.env.DATABASE_URL,
-    log: ['query', 'info', 'warn', 'error'],
+    log: [],
     errorFormat: 'colorless',
   }
 })

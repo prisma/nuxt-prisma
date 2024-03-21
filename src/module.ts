@@ -221,7 +221,7 @@ export default defineNuxtModule<ModuleOptions>({
         const response = await prompts({
           type: 'confirm',
           name: 'initPrisma',
-          message: 'Do you want to initialize Prisma?',
+          message: 'Do you want to initialize Prisma ORM?',
           initial: true
         })
 

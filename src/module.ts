@@ -146,7 +146,6 @@ export default defineNuxtModule<ModuleOptions>({
         }
       }
     }
-
     async function runMigration() {
       if (options.runMigration) {
         try {
@@ -235,7 +234,9 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
+    let migrationPerformed = false
     async function promptRunMigration() {
+      if (migrationPerformed) {
       const response = await prompts({
         type: 'confirm',
         name: 'runMigration',
@@ -246,6 +247,7 @@ export default defineNuxtModule<ModuleOptions>({
       if (response?.runMigration === true) {
         try {
           await runMigration()
+          migrationPerformed = true
         } catch (e: any) {
           error(e)
         }
@@ -253,8 +255,10 @@ export default defineNuxtModule<ModuleOptions>({
         console.log('Prisma migration skipped.')
       }
     }
-
+  }
+    let clientGenerated = false
     async function promptGenerateClient() {
+      if (clientGenerated) {
       const response = await prompts({
         type: 'confirm',
         name: 'generateClient',
@@ -271,7 +275,7 @@ export default defineNuxtModule<ModuleOptions>({
         console.log('Prisma Client generation skipped.')
       }
     }
-
+  }
     async function promptInstallStudio() {
       const response = await prompts({
         type: 'confirm',
@@ -321,7 +325,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
     await setupPrismaORM()
     // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
-    addPlugin(resolver('./runtime/plugin'))
+    // addPlugin(resolver('./runtime/plugin'))
     addImportsDir(resolver(runtimeDir, 'composables'))
   }}
 )

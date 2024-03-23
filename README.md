@@ -43,7 +43,7 @@ export default defineNuxtConfig({
 })
 ```
 
-3. Activate the module prompts for setting up Prisma ORM by running the following command depending on your package manager:
+3. Activate the module prompts for setting up Prisma ORM:
 
 ```bash
 # Using npm

@@ -19,30 +19,43 @@ Integrate Prisma ORM in your Nuxt app.
 
 ## Quick Setup
 
-1. Add `nuxt-prisma` dependency to your project
+1. Add `test-nuxt-prisma` dependency to your project
 
 ```bash
 # Using npm
-npm install --save-dev nuxt-prisma
+npm install --save-dev test-nuxt-prisma
 
 # Using pnpm
-pnpm add -D nuxt-prisma
+pnpm add -D test-nuxt-prisma
 
 # Using yarn
-yarn add --dev nuxt-prisma
+yarn add --dev test-nuxt-prisma
 
 ```
 
-2. Add `nuxt-prisma` to the `modules` section of `nuxt.config.ts`
+2. Add `test-nuxt-prisma` to the `modules` section of `nuxt.config.ts`
 
-```js
+```ts
 export default defineNuxtConfig({
   modules: [
-    'nuxt-prisma'
+    'test-nuxt-prisma'
   ]
 })
 ```
-That's it! You can now use the `nuxt-prisma` module in your Nuxt app ✨
+
+3. Activate the module prompts for setting up Prisma ORM by running the following command depending on your package manager:
+
+```bash
+# Using npm
+npm run dev
+
+# Using pnpm
+pnpm dev
+
+# Using yarn
+yarn dev
+
+```
 
 ## Options
 You can pass in options to configure the module within the `nuxt.config.ts` file.
@@ -50,7 +63,7 @@ You can pass in options to configure the module within the `nuxt.config.ts` file
 ```js
 export default defineNuxtConfig({
   modules: [
-    'nuxt-prisma'
+    'test-nuxt-prisma'
   ],
   prisma: {
     /* default module options */

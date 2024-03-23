@@ -41,7 +41,7 @@ export interface ModuleOptions extends Prisma.PrismaClientOptions{
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'nuxt-prisma',
+    name: 'test-nuxt-prisma',
     configKey: 'prisma'
   },
   // Default configuration options of the Nuxt module

@@ -109,7 +109,6 @@ export default defineNuxtModule<ModuleOptions>({
           const prismaSchemaPath = resolveProject('prisma', 'schema.prisma')
           let existingSchema = ''
           
-          // read the existing content of the schema file
           try {
             existingSchema = fs.readFileSync(prismaSchemaPath, 'utf-8')
           } catch {
@@ -125,12 +124,8 @@ export default defineNuxtModule<ModuleOptions>({
             }
           `
           const updatedSchema = `${existingSchema.trim()}\n\n${addModel}`
-        
-          try {
-            fs.writeFileSync(prismaSchemaPath, updatedSchema)
-          } catch {
-            error('Failed to write model to Prisma schema.')
-          }
+            
+          fs.writeFileSync(prismaSchemaPath, updatedSchema)
         } catch {
           error('Failed to write model to Prisma schema.')
         }
@@ -174,7 +169,9 @@ export default defineNuxtModule<ModuleOptions>({
         try {
           const { spawn } = require('child_process')
           await spawn('npx', ['prisma', 'studio', '--browser', 'none'], {cwd: resolveProject()})
-          success('Prisma Studio installed. You can view it as a tab in Nuxt DevTools.')
+          success(`Prisma Studio installed. After clicking 'Get Started' in Nuxt DevTools, 
+  click on the three dots in the lower left-hand side to reveal additional tabs.
+  Locate the Prisma logo to open Prisma Studio.`)
         } catch {
           error('Failed to install Prisma Studio.')
         }
@@ -209,9 +206,10 @@ export default defineNuxtModule<ModuleOptions>({
       const schemaExists = fs.existsSync(resolveProject('prisma', 'schema.prisma'))
       if (schemaExists) {
         success('Prisma schema file exists.')
-        console.log(`Please make sure to: \n 1. Set the DATABASE_URL in the .env file to point to your existing database. If your database has no tables yet, read https://pris.ly/d/getting-started 
-        \n 2. Set the provider of the datasource block in schema.prisma to match your database: postgresql, mysql, sqlite, sqlserver, mongodb, or cockroachdb.
-        \n 3. Run prisma db pull to turn your database schema into a Prisma schema.\n`)
+        console.log(`Please make sure to: \n 1. Set the DATABASE_URL in the \`.env\` file to point to your existing database. If your database has no tables yet, read https://pris.ly/d/getting-started 
+        \n 2. Set the provider of the datasource block in \`schema.prisma\` to match your database: postgresql, mysql, sqlite, sqlserver, mongodb, or cockroachdb.
+        \n 3. Run prisma db pull to turn your database schema into a Prisma schema.`)
+
       } else {
       console.log('Prisma schema file does not exist.')
       }
@@ -240,7 +238,7 @@ export default defineNuxtModule<ModuleOptions>({
       const response = await prompts({
         type: 'confirm',
         name: 'runMigration',
-        message: 'Do you want to run Prisma migration?',
+        message: 'Do you want to run Prisma Migrate?',
         initial: true
       })
 
@@ -252,8 +250,10 @@ export default defineNuxtModule<ModuleOptions>({
           error(e)
         }
       } else {
-        console.log('Prisma migration skipped.')
+        console.log('Prisma Migrate skipped.')
       }
+    } else {
+      success('You have already run Prisma Migrate.')
     }
   }
     let clientGenerated = false
@@ -268,12 +268,16 @@ export default defineNuxtModule<ModuleOptions>({
       if (response?.generateClient === true) {
         try {
           await generateClient()
+          clientGenerated = true
         } catch (e: any) {
           error(e)
         }
       } else {
         console.log('Prisma Client generation skipped.')
       }
+    } else {
+      success('You have already generated Prisma Client.')
+    
     }
   }
     async function promptInstallStudio() {

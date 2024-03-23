@@ -74,6 +74,12 @@ export default defineNuxtConfig({
 })
 ```
 
+| **Options**    | **Default**                | **Description**                           |
+|----------------|----------------------------|------------------------------------------ |
+| datasourceUrl  | `process.env.DATABASE_URL` | Database connection string                |
+| log            | `[]`                       | Determines console logging type and level |
+| errorFormat    | `'colorless'`              | Determines the level of error formatting. |
+
 ## Development
 
 ```bash

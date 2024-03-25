@@ -56,7 +56,7 @@ export default defineNuxtModule<ModuleOptions>({
     runMigration: true,
     installClient: true,
     generateClient: true,
-    installStudio: true
+    installStudio: true,
   },
   async setup(options, nuxt) {    
     const { resolve: resolveProject } = createResolver(nuxt.options.rootDir)
@@ -232,9 +232,7 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
-    let migrationPerformed = false
     async function promptRunMigration() {
-      if (migrationPerformed) {
       const response = await prompts({
         type: 'confirm',
         name: 'runMigration',
@@ -245,20 +243,15 @@ export default defineNuxtModule<ModuleOptions>({
       if (response?.runMigration === true) {
         try {
           await runMigration()
-          migrationPerformed = true
         } catch (e: any) {
           error(e)
         }
       } else {
         console.log('Prisma Migrate skipped.')
       }
-    } else {
-      success('You have already run Prisma Migrate.')
-    }
-  }
-    let clientGenerated = false
+    } 
+
     async function promptGenerateClient() {
-      if (clientGenerated) {
       const response = await prompts({
         type: 'confirm',
         name: 'generateClient',
@@ -268,18 +261,14 @@ export default defineNuxtModule<ModuleOptions>({
       if (response?.generateClient === true) {
         try {
           await generateClient()
-          clientGenerated = true
         } catch (e: any) {
           error(e)
         }
       } else {
         console.log('Prisma Client generation skipped.')
       }
-    } else {
-      success('You have already generated Prisma Client.')
-    
-    }
-  }
+    } 
+
     async function promptInstallStudio() {
       const response = await prompts({
         type: 'confirm',

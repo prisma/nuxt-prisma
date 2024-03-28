@@ -299,12 +299,26 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     async function writeClientPlugin(){
-      addPluginTemplate({
-        src: resolver('./runtime/plugin.ts'),
-        filename: 'plugin.ts',
-        write: true,
-        dst: resolver(process.cwd(), 'plugins/plugin.ts')
-      })
+      const existingContent = fs.existsSync(resolveProject('lib','prisma.ts'))
+      try {
+        if (!existingContent) {
+          const prismaClient = `import { PrismaClient } from "@prisma/client"
+    const globalForPrisma = global as unknown as { prisma: PrismaClient }
+
+    export const prisma = globalForPrisma.prisma || new PrismaClient()
+    
+    if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+    
+    export default prisma
+    `
+          fs.mkdirSync('lib')
+          fs.writeFileSync('lib/prisma.ts', prismaClient)
+          console.log("Global instance of Prisma Client file created successfully.")
+        }
+      } catch (e:any) {
+        error(e)
+      }
+      
     }
 
     async function setupPrismaORM() {
@@ -318,7 +332,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
     await setupPrismaORM()
     // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
-    // addPlugin(resolver('./runtime/plugin'))
+    addPlugin(resolver('./runtime/plugin'))
     addImportsDir(resolver(runtimeDir, 'composables'))
   }}
 )

@@ -94,6 +94,34 @@ import { prisma } from '~/lib/prisma'
   main()
 </script>
 ```
+Example use of client extension:
+```ts
+// lib/prisma.ts 
+import { PrismaClient } from "@prisma/client"
+// import extension after installing
+import prismaRandom from 'prisma-extension-random'
+
+    const globalForPrisma = global as unknown as { prisma: PrismaClient }
+    
+    // use .$extends method on PrismaClient()
+    export const prisma = globalForPrisma.prisma || new PrismaClient().$extends(prismaRandom())
+    
+    if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+    
+    export default prisma
+```
+```vue
+<script lang="ts" setup>
+// app.vue file
+import { prisma } from '~/lib/prisma'
+  async function main() {
+    // use findRandom method
+    const posts = await prisma.post.findRandom() 
+    console.log(posts)
+  }
+  main()
+</script>
+```
 
 ### `usePrismaClient()`
 This module exposes a [Nuxt composable](https://nuxt.com/docs/guide/directory-structure/composables) that is auto-imported inside your Vue files.

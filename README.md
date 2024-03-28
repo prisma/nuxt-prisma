@@ -80,6 +80,37 @@ export default defineNuxtConfig({
 | log                   | `[]`                       | Determines console logging type and level |
 | errorFormat           | `'colorless'`              | Determines the level of error formatting. |
 
+##  Usage
+### `lib/prisma.ts`
+This file creates a global instance of [Prisma Client](https://www.prisma.io/docs/orm/reference/prisma-client-reference). In this file, you can customize Prisma Client's capabilities, such as with [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions). We recommend importing this instance into the script tags of your `.vue` files like so: 
+
+```vue
+<script lang="ts" setup>
+import { prisma } from '~/lib/prisma'
+  async function main() {
+    const posts = await prisma.post.findMany()
+    console.log(posts)
+  }
+  main()
+</script>
+```
+
+### `usePrismaClient()`
+This module exposes a [Nuxt composable](https://nuxt.com/docs/guide/directory-structure/composables) that is auto-imported inside your Vue files.
+
+This composable is using [Prisma Client](https://www.prisma.io/docs/orm/reference/prisma-client-reference) under the hood via a Nuxt plugin. It gives access to the Prisma Client in your Vue components.
+
+```vue
+<script lang="ts" setup>
+  async function main() {
+    const prisma = usePrismaClient()
+    const posts = await prisma.post.findMany()
+    console.log(posts)
+  }
+  main()
+</script>
+```
+
 ## Development
 
 ```bash

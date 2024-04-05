@@ -67,7 +67,7 @@ export default defineNuxtConfig({
 
 ##  Usage
 ### `lib/prisma.ts`
-This file creates a global instance of [Prisma Client](https://www.prisma.io/docs/orm/reference/prisma-client-reference). In this file, you can customize Prisma Client's capabilities, such as with [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions). We recommend importing this instance into the script tags of your `.vue` files like so: 
+This file creates a global instance of [Prisma Client](https://www.prisma.io/docs/orm/reference/prisma-client-reference). In this file, you can customize Prisma Client's capabilities by using [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions). We recommend importing this instance into the script tags of your `.vue` files like so: 
 
 ```vue
 <script lang="ts" setup>

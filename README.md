@@ -66,12 +66,31 @@ export default defineNuxtConfig({
 | errorFormat           | `'colorless'`              | Determines the level of error formatting. |
 
 ##  Usage
-### `lib/prisma.ts`
-This file creates a global instance of [Prisma Client](https://www.prisma.io/docs/orm/reference/prisma-client-reference). In this file, you can customize Prisma Client's capabilities by using [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions). We recommend importing this instance into the script tags of your `.vue` files like so: 
+This module provides you with an instance of [Prisma Client](https://www.prisma.io/docs/orm/reference/prisma-client-reference) to query your database. There are two approaches for accessing this Prisma Client instance:
+
+### Option A: `lib/prisma.ts`
+This file creates a global instance of Prisma Client:
+
+```ts
+// lib/prisma.ts 
+import { PrismaClient } from "@prisma/client"
+
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
+    
+export const prisma = globalForPrisma.prisma || new PrismaClient()
+    
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+    
+export default prisma
+```
+
+We recommend importing this instance into the script tags of your `.vue` files like so: 
 
 ```vue
 <script lang="ts" setup>
+// Importing prisma instance from lib/prisma.ts
 import { prisma } from '~/lib/prisma'
+
   async function main() {
     const posts = await prisma.post.findMany()
     console.log(posts)
@@ -79,28 +98,34 @@ import { prisma } from '~/lib/prisma'
   main()
 </script>
 ```
-Example use of client extension:
+
+You can customize Prisma Client's capabilities by using [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) in your `lib/prisma.ts` file. 
+Here is an example using [`prisma-extension-random`](https://github.com/nkeil/prisma-extension-random): 
+
 ```ts
 // lib/prisma.ts 
 import { PrismaClient } from "@prisma/client"
-// import extension after installing
+// Import extension after installing
 import prismaRandom from 'prisma-extension-random'
 
-    const globalForPrisma = global as unknown as { prisma: PrismaClient }
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
     
-    // use .$extends method on PrismaClient()
-    export const prisma = globalForPrisma.prisma || new PrismaClient().$extends(prismaRandom())
+// use .$extends method on PrismaClient()
+export const prisma = globalForPrisma.prisma || new PrismaClient().$extends(prismaRandom())
     
-    if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
     
-    export default prisma
+export default prisma
 ```
+
+Here is an example usage of your `prisma` instance with the extension in your `.vue` file: 
+
 ```vue
 <script lang="ts" setup>
 // app.vue file
 import { prisma } from '~/lib/prisma'
   async function main() {
-    // use findRandom method
+    // Use findRandom() method
     const posts = await prisma.post.findRandom() 
     console.log(posts)
   }
@@ -108,10 +133,10 @@ import { prisma } from '~/lib/prisma'
 </script>
 ```
 
-### `usePrismaClient()`
+### Option B: `usePrismaClient()`
 This module exposes a [Nuxt composable](https://nuxt.com/docs/guide/directory-structure/composables) that is auto-imported inside your Vue files.
 
-This composable is using [Prisma Client](https://www.prisma.io/docs/orm/reference/prisma-client-reference) under the hood via a Nuxt plugin. It gives access to the Prisma Client in your Vue components.
+This composable is using [Prisma Client](https://www.prisma.io/docs/orm/reference/prisma-client-reference) under the hood via a Nuxt plugin. It gives access to the Prisma Client in your Vue components. 
 
 ```vue
 <script lang="ts" setup>

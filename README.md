@@ -134,7 +134,7 @@ import { prisma } from '~/lib/prisma'
   main()
 </script>
 ```
-To integrate [Prisma Pulse](https://www.prisma.io/docs/pulse/getting-started) or [Prisma Accelerate](https://www.prisma.io/docs/accelerate/getting-started) into your application, they must be configured as extensions using this approach. 
+> To integrate [Prisma Pulse](https://www.prisma.io/docs/pulse/getting-started) or [Prisma Accelerate](https://www.prisma.io/docs/accelerate/getting-started) into your application, they must be configured as extensions using this approach. 
 
 ### Option B: `usePrismaClient()`
 This module exposes a [Nuxt composable](https://nuxt.com/docs/guide/directory-structure/composables) that is auto-imported inside your Vue files.

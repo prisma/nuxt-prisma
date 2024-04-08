@@ -84,7 +84,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 export default prisma
 ```
 
-#### Importing the global `PrismaClient` instance
+#### Importing the global Prisma Client instance
 We recommend importing this instance into the script tags of your `.vue` files like so: 
 
 ```vue

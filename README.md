@@ -124,7 +124,6 @@ Here is an example usage of your Prisma Client instance with the extension in yo
 
 ```vue
 <script lang="ts" setup>
-// app.vue file
 import { prisma } from '~/lib/prisma'
   async function main() {
     // Use findRandom() method from prisma-extension-random 

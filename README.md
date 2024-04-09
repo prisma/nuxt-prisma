@@ -17,45 +17,30 @@ Integrate Prisma ORM in your Nuxt app.
 - Easily access Prisma Studio within Nuxt DevTools
 - Auto-imported `usePrismaClient()` composable for your Vue files
 
-## Quick Setup
+## Quick setup
 
 1. Add `test-nuxt-prisma` dependency to your project
 
-```bash
-# Using npm
-npm install --save-dev test-nuxt-prisma
-
-# Using pnpm
-pnpm add -D test-nuxt-prisma
-
-# Using yarn
-yarn add --dev test-nuxt-prisma
-
-```
+    ```bash
+    npm install --save-dev test-nuxt-prisma
+    ```
 
 2. Add `test-nuxt-prisma` to the `modules` section of `nuxt.config.ts`
 
-```ts
-export default defineNuxtConfig({
-  modules: [
-    'test-nuxt-prisma'
-  ]
-})
-```
+    ```ts
+    export default defineNuxtConfig({
+      modules: [
+        'test-nuxt-prisma'
+      ]
+    })
+    ```
 
 3. Activate the module prompts for setting up Prisma ORM:
 
-```bash
-# Using npm
-npm run dev
-
-# Using pnpm
-pnpm dev
-
-# Using yarn
-yarn dev
-
-```
+    ```bash
+    npm run dev
+    
+    ```
 
 ## Options
 You can pass in options to configure the module within the `nuxt.config.ts` file.
@@ -81,12 +66,32 @@ export default defineNuxtConfig({
 | errorFormat           | `'colorless'`              | Determines the level of error formatting. |
 
 ##  Usage
-### `lib/prisma.ts`
-This file creates a global instance of [Prisma Client](https://www.prisma.io/docs/orm/reference/prisma-client-reference). In this file, you can customize Prisma Client's capabilities, such as with [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions). We recommend importing this instance into the script tags of your `.vue` files like so: 
+This module provides you with an instance of [Prisma Client](https://www.prisma.io/docs/orm/reference/prisma-client-reference) to query your database. There are two approaches for accessing this Prisma Client instance:
+
+### Option A: `lib/prisma.ts`
+After running through the initial setup prompts, this module creates the `lib/prisma.ts` file which contains a global instance of Prisma Client:
+
+```ts
+// lib/prisma.ts 
+import { PrismaClient } from "@prisma/client"
+
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
+    
+export const prisma = globalForPrisma.prisma || new PrismaClient()
+    
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+    
+export default prisma
+```
+
+#### Importing the global Prisma Client instance
+We recommend importing this instance into the script tags of your `.vue` files like so: 
 
 ```vue
 <script lang="ts" setup>
+// Importing prisma instance from lib/prisma.ts
 import { prisma } from '~/lib/prisma'
+
   async function main() {
     const posts = await prisma.post.findMany()
     console.log(posts)
@@ -94,39 +99,46 @@ import { prisma } from '~/lib/prisma'
   main()
 </script>
 ```
-Example use of client extension:
+
+#### Using Prisma Client extensions 
+You can customize Prisma Client's capabilities by using [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) in your `lib/prisma.ts` file. 
+Here is an example using [`prisma-extension-random`](https://github.com/nkeil/prisma-extension-random): 
+
 ```ts
 // lib/prisma.ts 
 import { PrismaClient } from "@prisma/client"
-// import extension after installing
+// Import extension after installing
 import prismaRandom from 'prisma-extension-random'
 
-    const globalForPrisma = global as unknown as { prisma: PrismaClient }
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
     
-    // use .$extends method on PrismaClient()
-    export const prisma = globalForPrisma.prisma || new PrismaClient().$extends(prismaRandom())
+// use .$extends method on PrismaClient()
+export const prisma = globalForPrisma.prisma || new PrismaClient().$extends(prismaRandom())
     
-    if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
     
-    export default prisma
+export default prisma
 ```
+
+Here is an example usage of your Prisma Client instance with the extension in your `.vue` file: 
+
 ```vue
 <script lang="ts" setup>
-// app.vue file
 import { prisma } from '~/lib/prisma'
   async function main() {
-    // use findRandom method
+    // Use findRandom() method from prisma-extension-random 
     const posts = await prisma.post.findRandom() 
     console.log(posts)
   }
   main()
 </script>
 ```
+> To integrate [Prisma Pulse](https://www.prisma.io/docs/pulse/getting-started) or [Prisma Accelerate](https://www.prisma.io/docs/accelerate/getting-started) into your application, they must be configured as extensions using this approach. 
 
-### `usePrismaClient()`
+### Option B: `usePrismaClient()`
 This module exposes a [Nuxt composable](https://nuxt.com/docs/guide/directory-structure/composables) that is auto-imported inside your Vue files.
 
-This composable is using [Prisma Client](https://www.prisma.io/docs/orm/reference/prisma-client-reference) under the hood via a Nuxt plugin. It gives access to the Prisma Client in your Vue components.
+This composable is using [Prisma Client](https://www.prisma.io/docs/orm/reference/prisma-client-reference) under the hood via a Nuxt plugin. It gives access to the Prisma Client in your Vue components. 
 
 ```vue
 <script lang="ts" setup>
@@ -139,31 +151,6 @@ This composable is using [Prisma Client](https://www.prisma.io/docs/orm/referenc
 </script>
 ```
 
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Generate type stubs
-npm run dev:prepare
-
-# Develop with the playground
-npm run dev
-
-# Build the playground
-npm run dev:build
-
-# Run ESLint
-npm run lint
-
-# Run Vitest
-npm run test
-npm run test:watch
-
-# Release new version
-npm run release
-```
 
 <!-- Badges -->
 [npm-version-src]: https://img.shields.io/npm/v/my-module/latest.svg?style=flat&colorA=020420&colorB=00DC82

@@ -116,11 +116,20 @@ export default defineNuxtModule<ModuleOptions>({
           }
           
           const addModel = `
+            model User {
+              id    Int     @id @default(autoincrement())
+              email String  @unique
+              name  String?
+              posts Post[]
+            }
+            
             model Post {
-              id      Int      @id @default(autoincrement())
-              title   String
-              content String
-              userId  Int
+              id        Int     @id @default(autoincrement())
+              title     String
+              content   String?
+              published Boolean @default(false)
+              author    User    @relation(fields: [authorId], references: [id])
+              authorId  Int
             }
           `
           const updatedSchema = `${existingSchema.trim()}\n\n${addModel}`

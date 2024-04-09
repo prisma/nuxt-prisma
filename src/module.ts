@@ -154,7 +154,7 @@ export default defineNuxtModule<ModuleOptions>({
       if (options.runMigration) {
         try {
           await execa('npx', ['prisma', 'migrate', 'dev', '--name', 'init'], {cwd: resolveProject()})
-          success('Prisma migration ran successfully.')
+          success('Created User and Post tables in your SQLite database.')
         } catch {
           error('Failed to run Prisma migration.')
         }
@@ -245,7 +245,7 @@ export default defineNuxtModule<ModuleOptions>({
       const response = await prompts({
         type: 'confirm',
         name: 'runMigration',
-        message: 'Do you want to run Prisma Migrate?',
+        message: 'Do you want to migrate your database by creating database tables based on your Prisma schema?',
         initial: true
       })
 
@@ -282,7 +282,7 @@ export default defineNuxtModule<ModuleOptions>({
       const response = await prompts({
         type: 'confirm',
         name: 'installStudio',
-        message: 'Do you want to install Prisma Studio?',
+        message: 'Do you want to view and edit your data by installing Prisma Studio in Nuxt DevTools?',
         initial: true
       })
 
@@ -308,21 +308,23 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     async function writeClientPlugin(){
-      const existingContent = fs.existsSync(resolveProject('lib','prisma.ts'))
+      const existingContent = fs.existsSync(resolveProject('lib', 'prisma.ts'))
       try {
         if (!existingContent) {
           const prismaClient = `import { PrismaClient } from "@prisma/client"
-    const globalForPrisma = global as unknown as { prisma: PrismaClient }
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
-    export const prisma = globalForPrisma.prisma || new PrismaClient()
-    
-    if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
-    
-    export default prisma
+export const prisma = globalForPrisma.prisma || new PrismaClient()
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+
+export default prisma
     `
-          fs.mkdirSync('lib')
+          if (!fs.existsSync('lib')) {
+            fs.mkdirSync('lib')
+          }
           fs.writeFileSync('lib/prisma.ts', prismaClient)
-          console.log("Global instance of Prisma Client file created successfully.")
+          success("Global instance of Prisma Client successfully created within lib/prisma.ts file.")
         }
       } catch (e:any) {
         error(e)

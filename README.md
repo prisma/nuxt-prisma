@@ -5,7 +5,10 @@
 [![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 
-Integrate Prisma ORM in your Nuxt app.
+
+Are you a Nuxt developer? Or are you familiar with Prisma ORM and want to use it easily in a Nuxt app? Then this module is for you. 
+
+With this module, you can easily integrate Prisma ORM in your Nuxt app.
 
 <!-- - [✨ &nbsp;Release Notes](/CHANGELOG.md) -->
 <!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/my-module?file=playground%2Fapp.vue) -->

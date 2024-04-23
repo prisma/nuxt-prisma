@@ -6,7 +6,7 @@
 [![Nuxt][nuxt-src]][nuxt-href]
 
 
-Are you a Nuxt developer? Or are you familiar with Prisma ORM and want to use it easily in a Nuxt app? Then this module is for you. 
+Are you a Nuxt developer? Or are you familiar with Prisma ORM and want to use it easily with Nuxt? Then this module is for you. 
 
 With this module, you can easily integrate Prisma ORM in your Nuxt app.
 

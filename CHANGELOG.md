@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.7
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.6...v0.0.7)
+
+### 🚀 Enhancements
+
+- Update config ([937c052](https://github.com/prisma/nuxt-prisma/commit/937c052))
+
+### ❤️ Contributors
+
+- Ankur Datta <datta@prisma.io>
+
 ## v0.0.6
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.5...v0.0.6)

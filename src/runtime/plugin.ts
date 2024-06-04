@@ -1,5 +1,5 @@
-import { PrismaClient } from "@prisma/client";
 import { defineNuxtPlugin } from "#imports";
+import { PrismaClient } from "@prisma/client";
 
 export default defineNuxtPlugin({
   name: "prisma-client",
@@ -12,4 +12,7 @@ export default defineNuxtPlugin({
       },
     };
   },
+  env: {
+    islands: true
+  }
 });

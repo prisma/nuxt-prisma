@@ -1,14 +1,4 @@
 <template>
-  <div>
-    Nuxt module playground!
-  </div>
+  <div>Nuxt module playground!</div>
+  <Posts />
 </template>
-
-<script lang="ts" setup>
-  async function main() {
-    const prisma = usePrismaClient()
-    const posts = await prisma.post.findMany()
-    console.log(posts)
-  }
-  main()
-</script>

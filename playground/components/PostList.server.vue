@@ -5,7 +5,10 @@ const posts = await prisma.post.findMany();
 
 <template>
   <div>Posts</div>
-  <li v-for="post in posts" :key="post.id">
+  <li
+    v-for="post in posts"
+    :key="post.id"
+  >
     {{ post.title }}
   </li>
 </template>

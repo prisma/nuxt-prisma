@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v0.0.15
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.14...v0.0.15)
+
+### 🏡 Chore
+
+- Update packages ([360f259](https://github.com/prisma/nuxt-prisma/commit/360f259))
+- Update deps ([07c1d02](https://github.com/prisma/nuxt-prisma/commit/07c1d02))
+
+### ❤️ Contributors
+
+- Ankur Datta <datta@prisma.io>
+
 ## v0.0.14
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.13...v0.0.14)

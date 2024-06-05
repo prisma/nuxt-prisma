@@ -1,5 +1,5 @@
 import { defineNuxtPlugin } from "#imports";
-import prisma from "./utils/prisma"
+import prisma from "./server/utils/prisma"
 
 export default defineNuxtPlugin({
   name: "prisma-client",

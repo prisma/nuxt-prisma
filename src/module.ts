@@ -3,6 +3,7 @@ import {
   addPlugin,
   createResolver,
   addImportsDir,
+  addServerScanDir,
 } from "@nuxt/kit";
 import { Prisma } from "@prisma/client";
 import { execa } from "execa";
@@ -12,6 +13,7 @@ import defu from "defu";
 import fs from "fs";
 import prompts from "prompts";
 import chalk from "chalk";
+import { createRequire } from "module";
 
 export interface ModuleOptions extends Prisma.PrismaClientOptions {
   /**
@@ -321,17 +323,21 @@ export default defineNuxtModule<ModuleOptions>({
           error(e);
         }
         // add Prisma Studio to Nuxt DevTools
-        addCustomTab({
-          name: "nuxt-prisma",
-          title: "Prisma Studio",
-          icon: "simple-icons:prisma",
-          category: "server",
-          view: {
-            type: "iframe",
-            src: "http://localhost:5555/",
-            persistent: true
-          },
-        });
+
+        nuxt.hooks.hook('devtools:customTabs', (tab) => {
+          tab.push({
+            name: "nuxt-prisma",
+            title: "Prisma Studio",
+            icon: "simple-icons:prisma",
+            category: "server",
+            view: {
+              type: "iframe",
+              src: "http://localhost:5555/",
+              persistent: true
+            },
+          })
+        })
+
       } else {
         console.log("Prisma Studio installation skipped.");
       }
@@ -372,9 +378,22 @@ export default prisma
       await promptInstallStudio();
       await writeClientPlugin();
     }
+
+    // nuxt.hooks.hook('build:before', setupPrismaORM)
+
     await setupPrismaORM();
+
     // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
     addPlugin(resolver("./runtime/plugin"));
     addImportsDir(resolver(runtimeDir, "composables"));
+
+    // Auto-import from runtime/server/utils
+    addServerScanDir(createResolver(import.meta.url).resolve("./runtime/server"));
+
+    // Fix resolution of .prisma/client/index-browser
+    nuxt.options.alias[".prisma/client/index-browser"] = createRequire(import.meta.url)
+      .resolve("@prisma/client")
+      .replace("@prisma/client/default.js", ".prisma/client/index-browser.js");
+
   },
 });

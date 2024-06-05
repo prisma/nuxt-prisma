@@ -1,14 +1,9 @@
 <script lang="ts" setup>
 const prisma = usePrismaClient();
-const posts = await prisma.post.findMany();
+const post = await prisma.post.findFirst();
 </script>
 
 <template>
   <div>Posts</div>
-  <li
-    v-for="post in posts"
-    :key="post.id"
-  >
-    {{ post.title }}
-  </li>
+  <p>{{ post?.title ?? "There is no post." }}</p>
 </template>

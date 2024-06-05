@@ -1,4 +1,4 @@
 <template>
   <div>Nuxt module playground!</div>
-  <PostList />
+  <NuxtIsland name="PostList"> </NuxtIsland>
 </template>

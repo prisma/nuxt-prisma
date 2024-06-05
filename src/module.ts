@@ -13,7 +13,6 @@ import fs from "fs";
 import prompts from "prompts";
 import chalk from "chalk";
 import { createRequire } from "module";
-
 export interface ModuleOptions extends Prisma.PrismaClientOptions {
   /**
    * Database connection string to connect to your database.
@@ -374,9 +373,31 @@ export default prisma
       await promptInitPrisma();
       await promptRunMigration();
       await promptGenerateClient();
-      await promptInstallStudio();
+      // await promptInstallStudio();
       await writeClientPlugin();
     }
+
+    // Prisma client generation
+    const prismaCliPath = createResolver(nuxt.options.workspaceDir).resolve("node_modules/.bin/prisma");
+    const runPrismaStudio = async () => {
+       const { spawn } = require("child_process");
+       await spawn(prismaCliPath, ['studio', '--browser', 'none']);
+    };
+
+    await runPrismaStudio()
+    nuxt.hooks.hook('devtools:customTabs', (tab) => {
+      tab.push({
+        name: "nuxt-prisma",
+        title: "Prisma Studio",
+        icon: "simple-icons:prisma",
+        category: "server",
+        view: {
+          type: "iframe",
+          src: "http://localhost:5555/",
+          persistent: true
+        },
+      })
+    })
 
     // nuxt.hooks.hook('build:before', setupPrismaORM)
 

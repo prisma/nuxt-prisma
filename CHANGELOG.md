@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.14
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.13...v0.0.14)
+
+### 💅 Refactors
+
+- Separate prisma to server block ([1d51dd1](https://github.com/prisma/nuxt-prisma/commit/1d51dd1))
+
+### ❤️ Contributors
+
+- Ankur Datta <datta@prisma.io>
+
 ## v0.0.13
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.12...v0.0.13)

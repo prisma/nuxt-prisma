@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.10
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.9...v0.0.10)
+
+### 🩹 Fixes
+
+- Working locally ([d2bc01b](https://github.com/prisma/nuxt-prisma/commit/d2bc01b))
+
+### ❤️ Contributors
+
+- Ankur Datta <datta@prisma.io>
+
 ## v0.0.9
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.8...v0.0.9)

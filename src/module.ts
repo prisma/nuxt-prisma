@@ -7,7 +7,6 @@ import {
 } from "@nuxt/kit";
 import { Prisma } from "@prisma/client";
 import { execa } from "execa";
-import { addCustomTab } from "@nuxt/devtools-kit";
 import { fileURLToPath } from "url";
 import defu from "defu";
 import fs from "fs";

@@ -323,9 +323,11 @@ export default defineNuxtModule<ModuleOptions>({
           name: "nuxt-prisma",
           title: "Prisma Studio",
           icon: "simple-icons:prisma",
+          category: "server",
           view: {
             type: "iframe",
             src: "http://localhost:5555/",
+            persistent: true
           },
         });
       } else {

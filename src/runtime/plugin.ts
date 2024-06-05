@@ -11,8 +11,5 @@ export default defineNuxtPlugin({
         prisma: prisma,
       },
     };
-  },
-  env: {
-    islands: true
   }
 });

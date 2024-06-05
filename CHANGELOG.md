@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.11
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.10...v0.0.11)
+
+### 🚀 Enhancements
+
+- Clear multiple instances of prisma ([f47a0cd](https://github.com/prisma/nuxt-prisma/commit/f47a0cd))
+
+### ❤️ Contributors
+
+- Ankur Datta <datta@prisma.io>
+
 ## v0.0.10
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.9...v0.0.10)

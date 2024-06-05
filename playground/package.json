@@ -8,10 +8,10 @@
     "generate": "nuxi generate"
   },
   "dependencies": {
-    "@prisma/client": "^5.12.1",
-    "nuxt": "latest"
+    "@prisma/client": "^5.15.0"
   },
   "devDependencies": {
+    "nuxt": "^3.11.2",
     "prettier": "3.2.5",
     "prisma": "^5.11.0"
   }

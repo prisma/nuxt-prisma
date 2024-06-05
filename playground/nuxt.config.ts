@@ -1,5 +1,8 @@
 export default defineNuxtConfig({
-  modules: ['../src/module'],
+  modules: ["../src/module"],
   prisma: {},
-  devtools: { enabled: true }
-})
+  experimental: {
+    componentIslands: true,
+  },
+  devtools: { enabled: true },
+});

@@ -77,6 +77,8 @@ export default defineNuxtModule<ModuleOptions>({
       },
     );
 
+    nuxt.options.experimental.componentIslands = true
+
     function success(message: string) {
       console.log(chalk.green(`✔ ${message}`));
     }

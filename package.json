@@ -1,6 +1,6 @@
 {
   "name": "@prisma/nuxt",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "Integrate Nuxt with Prisma",
   "repository": "prisma/nuxt-prisma",
   "license": "MIT",

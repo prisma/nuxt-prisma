@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.17
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.16...v0.0.17)
+
+### 🚀 Enhancements
+
+- Exclude prisma from vite optimize ([24b929c](https://github.com/prisma/nuxt-prisma/commit/24b929c))
+
+### ❤️ Contributors
+
+- Ankur Datta <datta@prisma.io>
+
 ## v0.0.16
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.15...v0.0.16)

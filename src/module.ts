@@ -422,7 +422,8 @@ export default prisma
 
     nuxt.options.vite.optimizeDeps ||= {};
     nuxt.options.vite.optimizeDeps = {
-      exclude: ["@prisma/client"],
+      // exclude: ["@prisma/client"],
+      include: ["@prisma/nuxt > @prisma/client"],
     };
   },
 });

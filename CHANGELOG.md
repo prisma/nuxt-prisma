@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.19
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.18...v0.0.19)
+
+### 🏡 Chore
+
+- Cleanup unused code ([ef693fd](https://github.com/prisma/nuxt-prisma/commit/ef693fd))
+
+### ❤️ Contributors
+
+- Ankur Datta <datta@prisma.io>
+
 ## v0.0.18
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.17...v0.0.18)

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.18
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.17...v0.0.18)
+
+### 🩹 Fixes
+
+- Mention esm deps to cjs ([dd43d2c](https://github.com/prisma/nuxt-prisma/commit/dd43d2c))
+
+### ❤️ Contributors
+
+- Ankur Datta <datta@prisma.io>
+
 ## v0.0.17
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.16...v0.0.17)

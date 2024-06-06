@@ -77,7 +77,7 @@ export default defineNuxtModule<ModuleOptions>({
       },
     );
 
-    nuxt.options.experimental.componentIslands = true
+    nuxt.options.experimental.componentIslands = true;
 
     function success(message: string) {
       console.log(chalk.green(`✔ ${message}`));
@@ -322,7 +322,7 @@ export default defineNuxtModule<ModuleOptions>({
         }
         // add Prisma Studio to Nuxt DevTools
 
-        nuxt.hooks.hook('devtools:customTabs', (tab) => {
+        nuxt.hooks.hook("devtools:customTabs", (tab) => {
           tab.push({
             name: "nuxt-prisma",
             title: "Prisma Studio",
@@ -331,11 +331,10 @@ export default defineNuxtModule<ModuleOptions>({
             view: {
               type: "iframe",
               src: "http://localhost:5555/",
-              persistent: true
+              persistent: true,
             },
-          })
-        })
-
+          });
+        });
       } else {
         console.log("Prisma Studio installation skipped.");
       }
@@ -378,14 +377,16 @@ export default prisma
     }
 
     // Prisma client generation
-    const prismaCliPath = createResolver(nuxt.options.workspaceDir).resolve("node_modules/.bin/prisma");
+    const prismaCliPath = createResolver(nuxt.options.workspaceDir).resolve(
+      "node_modules/.bin/prisma",
+    );
     const runPrismaStudio = async () => {
-       const { spawn } = require("child_process");
-       await spawn(prismaCliPath, ['studio', '--browser', 'none']);
+      const { spawn } = require("child_process");
+      await spawn(prismaCliPath, ["studio", "--browser", "none"]);
     };
 
-    await runPrismaStudio()
-    nuxt.hooks.hook('devtools:customTabs', (tab) => {
+    await runPrismaStudio();
+    nuxt.hooks.hook("devtools:customTabs", (tab) => {
       tab.push({
         name: "nuxt-prisma",
         title: "Prisma Studio",
@@ -394,10 +395,10 @@ export default prisma
         view: {
           type: "iframe",
           src: "http://localhost:5555/",
-          persistent: true
+          persistent: true,
         },
-      })
-    })
+      });
+    });
 
     // nuxt.hooks.hook('build:before', setupPrismaORM)
 
@@ -408,12 +409,20 @@ export default prisma
     addImportsDir(resolver(runtimeDir, "composables"));
 
     // Auto-import from runtime/server/utils
-    addServerScanDir(createResolver(import.meta.url).resolve("./runtime/server"));
+    addServerScanDir(
+      createResolver(import.meta.url).resolve("./runtime/server"),
+    );
 
-    // Fix resolution of .prisma/client/index-browser
-    nuxt.options.alias[".prisma/client/index-browser"] = createRequire(import.meta.url)
-      .resolve("@prisma/client")
-      .replace("@prisma/client/default.js", ".prisma/client/index-browser.js");
+    // // Fix resolution of .prisma/client/index-browser
+    // nuxt.options.alias[".prisma/client/index-browser"] = createRequire(
+    //   import.meta.url,
+    // )
+    //   .resolve("@prisma/client")
+    //   .replace("@prisma/client/default.js", ".prisma/client/index-browser.js");
 
+    nuxt.options.vite.optimizeDeps ||= {};
+    nuxt.options.vite.optimizeDeps = {
+      exclude: ["@prisma/client"],
+    };
   },
 });

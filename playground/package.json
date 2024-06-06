@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "nuxi dev",
     "build": "nuxi build",
-    "generate": "nuxi generate"
+    "generate": "nuxi generate",
+    "postinstall": "nuxi prepare"
   },
   "dependencies": {
     "@prisma/client": "^5.15.0"

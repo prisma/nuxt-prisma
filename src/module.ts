@@ -67,6 +67,9 @@ export default defineNuxtModule<ModuleOptions>({
     const { resolve: resolver } = createResolver(import.meta.url);
     const runtimeDir = fileURLToPath(new URL("./runtime", import.meta.url));
 
+    const npm_lifecycle_event = import.meta.env.npm_lifecycle_event
+
+
     // exposing module options to application runtime
     nuxt.options.runtimeConfig.public.prisma = defu(
       nuxt.options.runtimeConfig.public.prisma || {},
@@ -371,8 +374,10 @@ export default prisma
       await promptInitPrisma();
       await promptRunMigration();
       await promptGenerateClient();
-      await promptInstallStudio();
       await writeClientPlugin();
+      if (npm_lifecycle_event !== "dev:prepare" && npm_lifecycle_event !== "postinstall") {
+        await promptInstallStudio();
+      }
     }
 
     await setupPrismaORM();

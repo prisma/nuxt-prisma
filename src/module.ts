@@ -5,45 +5,16 @@ import {
   addImportsDir,
   addServerScanDir,
 } from "@nuxt/kit";
-import { Prisma } from "@prisma/client";
 import { execa } from "execa";
 import { fileURLToPath } from "url";
 import defu from "defu";
 import fs from "fs";
 import prompts from "prompts";
 import chalk from "chalk";
-export interface ModuleOptions extends Prisma.PrismaClientOptions {
-  /**
-   * Database connection string to connect to your database.
-   * @default process.env.DATABASE_URL //datasource url in your schema.prisma file
-   * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#datasourceurl
-   */
-  datasourceUrl?: string;
+import type { PrismaExtendedModule } from "./runtime/types/prisma-module";
 
-  /**
-   * Determines the type and level of logging to the console.
-   * @example ['query', 'info', 'warn', 'error']
-   * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#log
-   */
-  log?: (Prisma.LogLevel | Prisma.LogDefinition)[];
 
-  /**
-   * Determines the level of error formatting.
-   * @default "colorless"
-   * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#errorformat
-   */
-  errorFormat?: Prisma.ErrorFormat;
-  installCli: boolean;
-  initPrisma: boolean;
-  writeToSchema: boolean;
-  formatSchema: boolean;
-  runMigration: boolean;
-  installClient: boolean;
-  generateClient: boolean;
-  installStudio: boolean;
-}
-
-export default defineNuxtModule<ModuleOptions>({
+export default defineNuxtModule<PrismaExtendedModule>({
   meta: {
     name: "@prisma/nuxt",
     configKey: "prisma",
@@ -61,14 +32,18 @@ export default defineNuxtModule<ModuleOptions>({
     installClient: true,
     generateClient: true,
     installStudio: true,
+    skipInstallations: false,
+    autoSetupPrisma: false
   },
   async setup(options, nuxt) {
     const { resolve: resolveProject } = createResolver(nuxt.options.rootDir);
     const { resolve: resolver } = createResolver(import.meta.url);
     const runtimeDir = fileURLToPath(new URL("./runtime", import.meta.url));
 
+    // Identifies which script is running: posinstall, dev or prod
     const npm_lifecycle_event = import.meta.env.npm_lifecycle_event
 
+    const force_skip_prisma_setup = import.meta.env.SKIP_PRISMA_SETUP ?? false;
 
     // exposing module options to application runtime
     nuxt.options.runtimeConfig.public.prisma = defu(
@@ -79,6 +54,8 @@ export default defineNuxtModule<ModuleOptions>({
       },
     );
 
+    // Enable server components for Nuxt
+    nuxt.options.experimental.componentIslands ||= {}
     nuxt.options.experimental.componentIslands = true;
 
     function success(message: string) {
@@ -167,6 +144,7 @@ export default defineNuxtModule<ModuleOptions>({
         }
       }
     }
+
     async function runMigration() {
       if (options.runMigration) {
         try {
@@ -215,6 +193,13 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     async function promptCli() {
+
+      if(options.autoSetupPrisma) {
+        await installCli();
+        success("Prisma CLI successfully installed.");
+        return
+      }
+
       try {
         await detectCli();
         success("Prisma CLI is installed.");
@@ -252,6 +237,14 @@ export default defineNuxtModule<ModuleOptions>({
       }
 
       if (schemaExists === false) {
+
+        if(options.autoSetupPrisma) {
+          await initPrisma();
+          await writeToSchema();
+          await formatSchema();
+          return
+        }
+
         const response = await prompts({
           type: "confirm",
           name: "initPrisma",
@@ -270,6 +263,12 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     async function promptRunMigration() {
+
+      if(options.autoSetupPrisma) {
+        await runMigration();
+        return;
+      }
+
       const response = await prompts({
         type: "confirm",
         name: "runMigration",
@@ -290,6 +289,16 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     async function promptGenerateClient() {
+
+      if(options.autoSetupPrisma) {
+        try {
+          await generateClient();
+        } catch (e: any) {
+          error(e);
+        }
+        return
+      }
+
       const response = await prompts({
         type: "confirm",
         name: "generateClient",
@@ -308,6 +317,25 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     async function promptInstallStudio() {
+
+      if(options.autoSetupPrisma) {
+        await installStudio();
+        nuxt.hooks.hook("devtools:customTabs", (tab) => {
+          tab.push({
+            name: "nuxt-prisma",
+            title: "Prisma Studio",
+            icon: "simple-icons:prisma",
+            category: "server",
+            view: {
+              type: "iframe",
+              src: "http://localhost:5555/",
+              persistent: true,
+            },
+          });
+        });
+        return;
+      }
+
       const response = await prompts({
         type: "confirm",
         name: "installStudio",
@@ -370,11 +398,20 @@ export default prisma
 
     async function setupPrismaORM() {
       console.log("Setting up Prisma ORM..");
-      await promptCli();
-      await promptInitPrisma();
-      await promptRunMigration();
-      await promptGenerateClient();
-      await writeClientPlugin();
+
+      if(force_skip_prisma_setup) {
+        error('Skipping Prisma ORM setup.')
+        return
+      }
+
+      if(!options.skipInstallations) {
+        await promptCli();
+        await promptInitPrisma();
+        await promptRunMigration();
+        await promptGenerateClient();
+        await writeClientPlugin();
+      }
+
       if (npm_lifecycle_event !== "dev:prepare" && npm_lifecycle_event !== "postinstall") {
         await promptInstallStudio();
       }

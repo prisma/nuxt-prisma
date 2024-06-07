@@ -408,7 +408,6 @@ export default prisma
         await writeClientPlugin();
       }
 
-      console.log({ npm_lifecycle_event });
       if (
         npm_lifecycle_event !== "dev:prepare" &&
         npm_lifecycle_event !== "postinstall" &&

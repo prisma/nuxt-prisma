@@ -13,7 +13,6 @@ import prompts from "prompts";
 import chalk from "chalk";
 import type { PrismaExtendedModule } from "./runtime/types/prisma-module";
 
-
 export default defineNuxtModule<PrismaExtendedModule>({
   meta: {
     name: "@prisma/nuxt",
@@ -33,7 +32,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     generateClient: true,
     installStudio: true,
     skipInstallations: false,
-    autoSetupPrisma: false
+    autoSetupPrisma: false,
   },
   async setup(options, nuxt) {
     const { resolve: resolveProject } = createResolver(nuxt.options.rootDir);
@@ -41,9 +40,11 @@ export default defineNuxtModule<PrismaExtendedModule>({
     const runtimeDir = fileURLToPath(new URL("./runtime", import.meta.url));
 
     // Identifies which script is running: posinstall, dev or prod
-    const npm_lifecycle_event = import.meta.env.npm_lifecycle_event
+    const npm_lifecycle_event = import.meta.env.npm_lifecycle_event;
 
-    const force_skip_prisma_setup = import.meta.env.SKIP_PRISMA_SETUP ?? false;
+    const force_skip_prisma_setup =
+      (import.meta.env.SKIP_PRISMA_SETUP ?? false) ||
+      npm_lifecycle_event === "test";
 
     // exposing module options to application runtime
     nuxt.options.runtimeConfig.public.prisma = defu(
@@ -55,7 +56,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     );
 
     // Enable server components for Nuxt
-    nuxt.options.experimental.componentIslands ||= {}
+    nuxt.options.experimental.componentIslands ||= {};
     nuxt.options.experimental.componentIslands = true;
 
     function success(message: string) {
@@ -193,11 +194,10 @@ export default defineNuxtModule<PrismaExtendedModule>({
     }
 
     async function promptCli() {
-
-      if(options.autoSetupPrisma) {
+      if (options.autoSetupPrisma) {
         await installCli();
         success("Prisma CLI successfully installed.");
-        return
+        return;
       }
 
       try {
@@ -237,12 +237,11 @@ export default defineNuxtModule<PrismaExtendedModule>({
       }
 
       if (schemaExists === false) {
-
-        if(options.autoSetupPrisma) {
+        if (options.autoSetupPrisma) {
           await initPrisma();
           await writeToSchema();
           await formatSchema();
-          return
+          return;
         }
 
         const response = await prompts({
@@ -263,8 +262,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     }
 
     async function promptRunMigration() {
-
-      if(options.autoSetupPrisma) {
+      if (options.autoSetupPrisma) {
         await runMigration();
         return;
       }
@@ -289,14 +287,13 @@ export default defineNuxtModule<PrismaExtendedModule>({
     }
 
     async function promptGenerateClient() {
-
-      if(options.autoSetupPrisma) {
+      if (options.autoSetupPrisma) {
         try {
           await generateClient();
         } catch (e: any) {
           error(e);
         }
-        return
+        return;
       }
 
       const response = await prompts({
@@ -317,8 +314,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     }
 
     async function promptInstallStudio() {
-
-      if(options.autoSetupPrisma) {
+      if (options.autoSetupPrisma) {
         await installStudio();
         nuxt.hooks.hook("devtools:customTabs", (tab) => {
           tab.push({
@@ -399,12 +395,12 @@ export default prisma
     async function setupPrismaORM() {
       console.log("Setting up Prisma ORM..");
 
-      if(force_skip_prisma_setup) {
-        error('Skipping Prisma ORM setup.')
-        return
+      if (force_skip_prisma_setup) {
+        error("Skipping Prisma ORM setup.");
+        return;
       }
 
-      if(!options.skipInstallations) {
+      if (!options.skipInstallations) {
         await promptCli();
         await promptInitPrisma();
         await promptRunMigration();
@@ -412,7 +408,12 @@ export default prisma
         await writeClientPlugin();
       }
 
-      if (npm_lifecycle_event !== "dev:prepare" && npm_lifecycle_event !== "postinstall") {
+      console.log({ npm_lifecycle_event });
+      if (
+        npm_lifecycle_event !== "dev:prepare" &&
+        npm_lifecycle_event !== "postinstall" &&
+        npm_lifecycle_event !== "test"
+      ) {
         await promptInstallStudio();
       }
     }

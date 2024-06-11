@@ -21,8 +21,6 @@ interface ModuleOptions extends Prisma.PrismaClientOptions {
    * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#errorformat
    */
   errorFormat?: Prisma.ErrorFormat;
-  installCli: boolean;
-  initPrisma: boolean;
   writeToSchema: boolean;
   formatSchema: boolean;
   runMigration: boolean;
@@ -30,8 +28,7 @@ interface ModuleOptions extends Prisma.PrismaClientOptions {
   generateClient: boolean;
   installStudio: boolean;
   skipInstallations: boolean;
-  autoSetupPrisma: boolean
+  autoSetupPrisma: boolean;
 }
 
-
-export type PrismaExtendedModule = ModuleOptions
+export type PrismaExtendedModule = ModuleOptions;

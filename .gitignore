@@ -57,4 +57,6 @@ Temporary Items
 prisma
 lib
 playground/lib
+playground/prisma
 prisma/migrations
+prisma/schema.prisma

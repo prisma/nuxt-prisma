@@ -75,12 +75,6 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
     const force_skip_prisma_setup = import.meta.env.SKIP_PRISMA_SETUP ?? false;
 
-    if (force_skip_prisma_setup) {
-      log(PREDEFINED_LOG_MESSAGES.PRISMA_SETUP_SKIPPED_WARNING);
-      prepareModule();
-      return;
-    }
-
     // exposing module options to application runtime
     nuxt.options.runtimeConfig.public.prisma = defu(
       nuxt.options.runtimeConfig.public.prisma || {},
@@ -89,6 +83,12 @@ export default defineNuxtModule<PrismaExtendedModule>({
         errorFormat: options.errorFormat,
       },
     );
+
+    if (force_skip_prisma_setup || npm_lifecycle_event === "postinstall") {
+      log(PREDEFINED_LOG_MESSAGES.PRISMA_SETUP_SKIPPED_WARNING);
+      prepareModule();
+      return;
+    }
 
     const PROJECT_PATH = resolveProject();
 
@@ -112,7 +112,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
         resolveProject("prisma", "migrations"),
       );
 
-      if (doesMigrationFolderExist) {
+      if (doesMigrationFolderExist || !options.runMigration) {
         // Skip migration as the migration folder exists
         log(PREDEFINED_LOG_MESSAGES.skipMigrations);
         return;
@@ -120,11 +120,17 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
       const migrateAndFormatSchema = async () => {
         await runMigration(PROJECT_PATH);
+
+        if (!options.formatSchema) {
+          return;
+        }
+
         await formatSchema(PROJECT_PATH);
       };
 
       if (options.autoSetupPrisma && options.runMigration) {
         await migrateAndFormatSchema();
+        return;
       }
 
       const promptResult = await executeRequiredPrompts({
@@ -196,7 +202,9 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
     await writeClientInLib(resolveProject("lib", "prisma.ts"));
 
-    await generateClient(PROJECT_PATH);
+    if (options.generateClient) {
+      await generateClient(PROJECT_PATH, options.installClient);
+    }
 
     await prismaStudioWorkflow();
 

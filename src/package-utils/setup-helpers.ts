@@ -76,11 +76,13 @@ export async function initPrisma({
   }
 
   try {
+    log(PREDEFINED_LOG_MESSAGES.initPrisma.action);
+
     const { stdout: initializePrisma } = await execa("npx", command, {
       cwd: directory,
     });
 
-    logSuccess(initializePrisma);
+    log(initializePrisma?.split("Next steps")?.[0]);
 
     return true;
   } catch (err) {
@@ -139,6 +141,8 @@ export async function writeToSchema(prismaSchemaPath: string) {
 
 export async function runMigration(directory: string) {
   try {
+    log(PREDEFINED_LOG_MESSAGES.runMigration.action);
+
     await execa("npx", ["prisma", "migrate", "dev", "--name", "init"], {
       cwd: directory,
     });
@@ -147,24 +151,41 @@ export async function runMigration(directory: string) {
   } catch (err) {
     logError(PREDEFINED_LOG_MESSAGES.runMigration.error);
     log(err);
+    log(PREDEFINED_LOG_MESSAGES.suggestions.migrate);
     return false;
   }
 }
 
 export async function formatSchema(directory: string) {
   try {
+    log(PREDEFINED_LOG_MESSAGES.formatSchema.action);
     await execa("npx", ["prisma", "format"], { cwd: directory });
   } catch {
     logError(PREDEFINED_LOG_MESSAGES.formatSchema.error);
   }
 }
 
-export async function generateClient(directory: string) {
-  try {
-    await execa("npm", ["install", "@prisma/client"], {
-      cwd: directory,
-    });
+export async function generateClient(
+  directory: string,
+  installPrismaClient: boolean = true,
+) {
+  log(PREDEFINED_LOG_MESSAGES.generatePrismaClient.action);
 
+  if (installPrismaClient) {
+    try {
+      await execa("npm", ["install", "@prisma/client"], {
+        cwd: directory,
+      });
+    } catch (error) {
+      logError(
+        PREDEFINED_LOG_MESSAGES.generatePrismaClient
+          .prismaClientInstallationError,
+      );
+      log(error);
+    }
+  }
+
+  try {
     const { stdout: generateClient } = await execa(
       "npx",
       ["prisma", "generate"],
@@ -183,6 +204,9 @@ export async function generateClient(directory: string) {
 export async function installStudio(directory: string) {
   try {
     const { spawn } = require("child_process");
+
+    log(PREDEFINED_LOG_MESSAGES.installStudio.action);
+
     await spawn("npx", ["prisma", "studio", "--browser", "none"], {
       cwd: directory,
     });

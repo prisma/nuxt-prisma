@@ -2,13 +2,6 @@ import type { Prisma } from "@prisma/client";
 
 interface ModuleOptions extends Prisma.PrismaClientOptions {
   /**
-   * Database connection string to connect to your database.
-   * @default process.env.DATABASE_URL //datasource url in your schema.prisma file
-   * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#datasourceurl
-   */
-  datasourceUrl?: string;
-
-  /**
    * Determines the type and level of logging to the console.
    * @example ['query', 'info', 'warn', 'error']
    * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#log

@@ -8,7 +8,6 @@ import {
 import { fileURLToPath } from "url";
 import defu from "defu";
 import { executeRequiredPrompts } from "./package-utils/prompts";
-
 import {
   checkIfMigrationsFolderExists,
   checkIfPrismaSchemaExists,
@@ -77,8 +76,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     const runtimeDir = fileURLToPath(new URL("./runtime", import.meta.url));
 
     // Identifies which script is running: posinstall, dev or prod
-    const npm_lifecycle_event =
-      import.meta.env?.npm_lifecycle_event ?? process.env.npm_lifecycle_event;
+    const npm_lifecycle_event = process.env?.npm_lifecycle_event;
 
     const prepareModule = () => {
       // Enable server components for Nuxt
@@ -86,6 +84,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
       nuxt.options.experimental.componentIslands = true;
 
       // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
+
       addPlugin(resolver("./runtime/plugin"));
       addImportsDir(resolver(runtimeDir, "composables"));
 
@@ -100,7 +99,10 @@ export default defineNuxtModule<PrismaExtendedModule>({
       };
     };
 
-    const force_skip_prisma_setup = import.meta.env.SKIP_PRISMA_SETUP ?? false;
+    const force_skip_prisma_setup =
+      import.meta.env?.SKIP_PRISMA_SETUP ??
+      process.env?.SKIP_PRISMA_SETUP ??
+      false;
 
     // exposing module options to application runtime
     nuxt.options.runtimeConfig.public.prisma = defu(
@@ -112,7 +114,9 @@ export default defineNuxtModule<PrismaExtendedModule>({
     );
 
     if (force_skip_prisma_setup || npm_lifecycle_event === "postinstall") {
-      log(PREDEFINED_LOG_MESSAGES.PRISMA_SETUP_SKIPPED_WARNING);
+      if (npm_lifecycle_event !== "postinstall") {
+        log(PREDEFINED_LOG_MESSAGES.PRISMA_SETUP_SKIPPED_WARNING);
+      }
       prepareModule();
       return;
     }

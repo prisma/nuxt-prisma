@@ -9,6 +9,7 @@ import { fileURLToPath } from "url";
 import defu from "defu";
 import type { PrismaExtendedModule } from "./runtime/types/prisma-module";
 import { executeRequiredPrompts } from "./package-utils/prompts";
+
 import {
   checkIfMigrationsFolderExists,
   checkIfPrismaSchemaExists,
@@ -113,6 +114,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
       if (doesMigrationFolderExist) {
         // Skip migration as the migration folder exists
+        log(PREDEFINED_LOG_MESSAGES.skipMigrations);
         return;
       }
 
@@ -134,8 +136,6 @@ export default defineNuxtModule<PrismaExtendedModule>({
         await migrateAndFormatSchema();
       }
 
-      log("Skipped running Prisma migrate.");
-
       return;
     };
 
@@ -152,7 +152,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
     const prismaStudioWorkflow = async () => {
       if (!options.installStudio || npm_lifecycle_event !== "dev") {
-        log("Skipped installing Prisma Studio");
+        log(PREDEFINED_LOG_MESSAGES.skipInstallingPrismaStudio);
         return;
       }
 
@@ -195,6 +195,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     }
 
     await writeClientInLib(resolveProject("lib", "prisma.ts"));
+
     await generateClient(PROJECT_PATH);
 
     await prismaStudioWorkflow();

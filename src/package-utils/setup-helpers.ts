@@ -171,7 +171,9 @@ export async function generateClient(directory: string) {
       { cwd: directory },
     );
 
-    log(generateClient);
+    log("\n" + generateClient.split("\n").slice(0, 4).join("\n") + "\n");
+
+    // log(generateClient);
   } catch (err) {
     logError(PREDEFINED_LOG_MESSAGES.generatePrismaClient.error);
     log(err);
@@ -184,7 +186,9 @@ export async function installStudio(directory: string) {
     await spawn("npx", ["prisma", "studio", "--browser", "none"], {
       cwd: directory,
     });
+
     logSuccess(PREDEFINED_LOG_MESSAGES.installStudio.success);
+
     return true;
   } catch (err) {
     logError(PREDEFINED_LOG_MESSAGES.installStudio.error);
@@ -217,6 +221,11 @@ if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma
 
       if (!existsSync("lib")) {
         mkdirSync("lib");
+      }
+
+      if (existsSync("lib/prisma.ts")) {
+        log(PREDEFINED_LOG_MESSAGES.writeClientInLib.found);
+        return;
       }
 
       writeFileSync("lib/prisma.ts", prismaClient);

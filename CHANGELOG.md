@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.23
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.22...v0.0.23)
+
+### 🩹 Fixes
+
+- Add check to ensure meta import process isn't null ([8919751](https://github.com/prisma/nuxt-prisma/commit/8919751))
+
+### ❤️ Contributors
+
+- Ankur Datta <datta@prisma.io>
+
 ## v0.0.22
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.21...v0.0.22)

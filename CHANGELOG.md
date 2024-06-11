@@ -1,6 +1,36 @@
 # Changelog
 
 
+## v0.0.22
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.21...v0.0.22)
+
+### 🚀 Enhancements
+
+- Add option to skip initialization ([0e8c0f1](https://github.com/prisma/nuxt-prisma/commit/0e8c0f1))
+- Update og image ([dcc6de7](https://github.com/prisma/nuxt-prisma/commit/dcc6de7))
+- Refactor business logic ([42e8c4d](https://github.com/prisma/nuxt-prisma/commit/42e8c4d))
+- Improve CLI message ([988f67d](https://github.com/prisma/nuxt-prisma/commit/988f67d))
+
+### 🩹 Fixes
+
+- Pass failing test ([a32a99e](https://github.com/prisma/nuxt-prisma/commit/a32a99e))
+- Add og image path ([46f682b](https://github.com/prisma/nuxt-prisma/commit/46f682b))
+
+### 📖 Documentation
+
+- Fix docs build ([0e70549](https://github.com/prisma/nuxt-prisma/commit/0e70549))
+
+### 🏡 Chore
+
+- Add wrangler to gitignore ([9642771](https://github.com/prisma/nuxt-prisma/commit/9642771))
+- Clean extra log ([96c7ec2](https://github.com/prisma/nuxt-prisma/commit/96c7ec2))
+- Add new folders to gitignore ([21f5f4f](https://github.com/prisma/nuxt-prisma/commit/21f5f4f))
+
+### ❤️ Contributors
+
+- Ankur Datta <datta@prisma.io>
+
 ## v0.0.21
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.19...v0.0.21)

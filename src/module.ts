@@ -7,7 +7,6 @@ import {
 } from "@nuxt/kit";
 import { fileURLToPath } from "url";
 import defu from "defu";
-import type { PrismaExtendedModule } from "./runtime/types/prisma-module";
 import { executeRequiredPrompts } from "./package-utils/prompts";
 
 import {
@@ -24,6 +23,33 @@ import {
   writeToSchema,
 } from "./package-utils/setup-helpers";
 import { log, PREDEFINED_LOG_MESSAGES } from "./package-utils/log-helpers";
+import type { Prisma } from "@prisma/client";
+
+interface ModuleOptions extends Prisma.PrismaClientOptions {
+  /**
+   * Determines the type and level of logging to the console.
+   * @example ['query', 'info', 'warn', 'error']
+   * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#log
+   */
+  log?: (Prisma.LogLevel | Prisma.LogDefinition)[];
+
+  /**
+   * Determines the level of error formatting.
+   * @default "colorless"
+   * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#errorformat
+   */
+  errorFormat?: Prisma.ErrorFormat;
+  writeToSchema: boolean;
+  formatSchema: boolean;
+  runMigration: boolean;
+  installClient: boolean;
+  generateClient: boolean;
+  installStudio: boolean;
+  skipInstallations: boolean;
+  autoSetupPrisma: boolean;
+}
+
+export type PrismaExtendedModule = ModuleOptions;
 
 export default defineNuxtModule<PrismaExtendedModule>({
   meta: {
@@ -51,7 +77,8 @@ export default defineNuxtModule<PrismaExtendedModule>({
     const runtimeDir = fileURLToPath(new URL("./runtime", import.meta.url));
 
     // Identifies which script is running: posinstall, dev or prod
-    const npm_lifecycle_event = import.meta.env.npm_lifecycle_event;
+    const npm_lifecycle_event =
+      import.meta.env?.npm_lifecycle_event ?? process.env.npm_lifecycle_event;
 
     const prepareModule = () => {
       // Enable server components for Nuxt

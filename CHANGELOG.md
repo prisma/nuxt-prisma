@@ -1,6 +1,10 @@
 # Changelog
 
 
+## v0.0.25
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.24...v0.0.25)
+
 ## v0.0.24
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.23...v0.0.24)

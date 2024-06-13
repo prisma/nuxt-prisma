@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.26
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/M1...v0.0.26)
+
+### 🩹 Fixes
+
+- Add await to async function ([480f244](https://github.com/prisma/nuxt-prisma/commit/480f244))
+
+### ❤️ Contributors
+
+- Ankur Datta <datta@prisma.io>
+
 ## v0.0.25
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.24...v0.0.25)

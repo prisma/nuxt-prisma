@@ -8,12 +8,12 @@
     "generate": "nuxi generate",
     "postinstall": "nuxi prepare"
   },
-  "dependencies": {
-    "@prisma/client": "^5.15.0"
-  },
   "devDependencies": {
     "nuxt": "^3.11.2",
     "prettier": "3.2.5",
     "prisma": "^5.15.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.15.0"
   }
 }

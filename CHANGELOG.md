@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.27
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.26...v0.0.27)
+
+### 🩹 Fixes
+
+- Install with specific package manager ([4831f65](https://github.com/prisma/nuxt-prisma/commit/4831f65))
+
+### ❤️ Contributors
+
+- Ankur Datta <datta@prisma.io>
+
 ## v0.0.26
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/M1...v0.0.26)

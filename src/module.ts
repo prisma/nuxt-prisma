@@ -25,23 +25,11 @@ import { log, PREDEFINED_LOG_MESSAGES } from "./package-utils/log-helpers";
 import type { Prisma } from "@prisma/client";
 
 interface ModuleOptions extends Prisma.PrismaClientOptions {
-  /**
-   * Determines the type and level of logging to the console.
-   * @example ['query', 'info', 'warn', 'error']
-   * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#log
-   */
-  log?: (Prisma.LogLevel | Prisma.LogDefinition)[];
-
-  /**
-   * Determines the level of error formatting.
-   * @default "colorless"
-   * @docs https://prisma.io/docs/reference/api-reference/prisma-client-reference#errorformat
-   */
-  errorFormat?: Prisma.ErrorFormat;
   writeToSchema: boolean;
   formatSchema: boolean;
   runMigration: boolean;
   installClient: boolean;
+  installCLI: boolean;
   generateClient: boolean;
   installStudio: boolean;
   skipInstallations: boolean;
@@ -57,13 +45,18 @@ export default defineNuxtModule<PrismaExtendedModule>({
   },
   // Default configuration options of the Nuxt module
   defaults: {
-    datasourceUrl: process.env.DATABASE_URL,
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
     log: [],
-    errorFormat: "colorless",
+    errorFormat: "pretty",
     writeToSchema: true,
     formatSchema: true,
     runMigration: true,
     installClient: true,
+    installCLI: true,
     generateClient: true,
     installStudio: true,
     skipInstallations: false,
@@ -123,12 +116,14 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
     const PROJECT_PATH = resolveProject();
 
-    // Check if Prisma CLI is installed.
-    const prismaInstalled = await isPrismaCLIInstalled(PROJECT_PATH);
+    if (options.installCLI) {
+      // Check if Prisma CLI is installed.
+      const prismaInstalled = await isPrismaCLIInstalled(PROJECT_PATH);
 
-    // if Prisma CLI is installed skip the following step.
-    if (!prismaInstalled) {
-      installPrismaCLI(PROJECT_PATH);
+      // if Prisma CLI is installed skip the following step.
+      if (!prismaInstalled) {
+        await installPrismaCLI(PROJECT_PATH);
+      }
     }
 
     // Check if Prisma Schema exists

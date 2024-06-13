@@ -1,6 +1,8 @@
 export default defineNuxtConfig({
   modules: ["../src/module"],
-  prisma: {},
+  prisma: {
+    installCLI: true,
+  },
   experimental: {
     componentIslands: true,
   },

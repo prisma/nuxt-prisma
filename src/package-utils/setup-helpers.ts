@@ -30,7 +30,7 @@ export async function isPrismaCLIInstalled(
     return true;
   } catch (error) {
     logError(PREDEFINED_LOG_MESSAGES.isPrismaCLIinstalled.no);
-    log(error);
+    // log(error);
     return false;
   }
 }

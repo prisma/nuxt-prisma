@@ -6,6 +6,7 @@ import {
   PREDEFINED_LOG_MESSAGES,
 } from "./log-helpers";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { installingPrismaClientWithPM, installingPrismaCLIWithPM } from "./detect-pm";
 
 export type DatabaseProviderType =
   | "sqlite"
@@ -36,8 +37,9 @@ export async function isPrismaCLIInstalled(
 }
 
 export async function installPrismaCLI(directory: string) {
+  const installCommand = installingPrismaCLIWithPM()
   try {
-    await execa("npm", ["install", "prisma", "--save-dev"], {
+    await execa(installCommand.pm, installCommand.command, {
       cwd: directory,
     });
     logSuccess(PREDEFINED_LOG_MESSAGES.installPrismaCLI.yes);
@@ -170,10 +172,11 @@ export async function generateClient(
   installPrismaClient: boolean = true,
 ) {
   log(PREDEFINED_LOG_MESSAGES.generatePrismaClient.action);
+  const installCommand = installingPrismaClientWithPM()
 
   if (installPrismaClient) {
     try {
-      await execa("npm", ["install", "@prisma/client"], {
+      await execa(installCommand.pm, installCommand.command, {
         cwd: directory,
       });
     } catch (error) {
@@ -181,7 +184,7 @@ export async function generateClient(
         PREDEFINED_LOG_MESSAGES.generatePrismaClient
           .prismaClientInstallationError,
       );
-      log(error);
+      // log(error);
     }
   }
 
@@ -197,7 +200,7 @@ export async function generateClient(
     // log(generateClient);
   } catch (err) {
     logError(PREDEFINED_LOG_MESSAGES.generatePrismaClient.error);
-    log(err);
+    // log(err);
   }
 }
 

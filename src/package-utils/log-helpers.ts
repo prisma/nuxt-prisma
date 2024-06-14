@@ -15,7 +15,7 @@ export function log(message: any) {
 export const PREDEFINED_LOG_MESSAGES = {
   isPrismaCLIinstalled: {
     yes: `Prisma CLI is already installed.`,
-    no: `Failed to install Prisma CLI.`,
+    no: `Prisma CLI is not installed.`,
   },
   installPrismaCLI: {
     action: "Installing Prisma CLI...",

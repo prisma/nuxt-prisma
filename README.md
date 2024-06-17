@@ -1,5 +1,6 @@
 # Nuxt Prisma
 
+<!-- Badges -->
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![License][license-src]][license-href]
@@ -15,7 +16,7 @@ With this module, you can easily integrate Prisma ORM in your Nuxt app.
 - Easily access Prisma Studio within Nuxt DevTools
 - Auto-imported `usePrismaClient()` composable for your Vue files
 
-### Quick setup
+## Quick setup
 
 1. Add `@prisma/nuxt` dependency to your project
 

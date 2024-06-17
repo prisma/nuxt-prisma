@@ -2,16 +2,7 @@
 
 # Nuxt Prisma
 
-<!-- Badges -->
-
-[npm-version-src]: https://img.shields.io/npm/v/@prisma/nuxt/latest.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-version-href]: https://npmjs.com/package/@prisma/nuxt
-[npm-downloads-src]: https://img.shields.io/npm/dm/@prisma/nuxt.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-downloads-href]: https://npmjs.com/package/@prisma/nuxt
-[license-src]: https://img.shields.io/npm/l/@prisma/nuxt.svg?style=flat&colorA=020420&colorB=00DC82
-[license-href]: https://npmjs.com/package/@prisma/nuxt
-[nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js
-[nuxt-href]: https://nuxt.com
+[![npm version][npm-version-src]][npm-version-href] [![npm downloads][npm-downloads-src]][npm-downloads-href] [![License][license-src]][license-href] [![Nuxt][nuxt-src]][nuxt-href]
 
 Are you a Nuxt developer? Or are you familiar with Prisma ORM and want to use it easily with Nuxt? Then this module is for you.
 
@@ -55,3 +46,14 @@ With this module, you can easily integrate Prisma ORM in your Nuxt app.
    6. Prompt you to start the [Prisma Studio](https://www.prisma.io/docs/orm/tools/prisma-studio)
 
 To learn more about how to use the module, visit our [documentation](https://pris.ly/prisma-nuxt)
+
+<!-- Badges -->
+
+[npm-version-src]: https://img.shields.io/npm/v/@prisma/nuxt/latest.svg?style=flat&colorA=020420&colorB=00DC82
+[npm-version-href]: https://npmjs.com/package/@prisma/nuxt
+[npm-downloads-src]: https://img.shields.io/npm/dm/@prisma/nuxt.svg?style=flat&colorA=020420&colorB=00DC82
+[npm-downloads-href]: https://npmjs.com/package/@prisma/nuxt
+[license-src]: https://img.shields.io/npm/l/@prisma/nuxt.svg?style=flat&colorA=020420&colorB=00DC82
+[license-href]: https://npmjs.com/package/@prisma/nuxt
+[nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js
+[nuxt-href]: https://nuxt.com

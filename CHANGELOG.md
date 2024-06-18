@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v0.0.30
+
+[compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.27...v0.0.30)
+
+### 🩹 Fixes
+
+- Remove package specfic install ([8820362](https://github.com/prisma/nuxt-prisma/commit/8820362))
+- Correct the README of the project with proper links ([8f484a0](https://github.com/prisma/nuxt-prisma/commit/8f484a0))
+- Add badges and title levels ([931e0f0](https://github.com/prisma/nuxt-prisma/commit/931e0f0))
+- Broken badges ([4b1a5cb](https://github.com/prisma/nuxt-prisma/commit/4b1a5cb))
+- Add badge urls ([585f62a](https://github.com/prisma/nuxt-prisma/commit/585f62a))
+
+### 📖 Documentation
+
+- Add badge to the top of the README ([3e0b1cb](https://github.com/prisma/nuxt-prisma/commit/3e0b1cb))
+
+### 🏡 Chore
+
+- **release:** V0.0.28 ([519628a](https://github.com/prisma/nuxt-prisma/commit/519628a))
+
+### ❤️ Contributors
+
+- Ankur Datta ([@ankur-arch](http://github.com/ankur-arch))
+
 ## v0.0.28
 
 [compare changes](https://github.com/prisma/nuxt-prisma/compare/v0.0.27...v0.0.28)

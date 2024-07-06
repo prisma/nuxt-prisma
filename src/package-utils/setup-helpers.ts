@@ -1,5 +1,8 @@
 import { execa } from "execa";
-import { installingPrismaCLIWithPM } from "./detect-pm";
+import {
+  installingPrismaClientWithPM,
+  installingPrismaCLIWithPM,
+} from "./detect-pm";
 import {
   log,
   logError,
@@ -37,9 +40,10 @@ export async function isPrismaCLIInstalled(
 }
 
 export async function installPrismaCLI(directory: string) {
-
   try {
-    await execa("npm", ["install", "prisma", "--save-dev"], {
+    const installCmd = installingPrismaCLIWithPM();
+
+    await execa(installCmd.pm, installCmd.command, {
       cwd: directory,
     });
     logSuccess(PREDEFINED_LOG_MESSAGES.installPrismaCLI.yes);
@@ -173,10 +177,9 @@ export async function generateClient(
 ) {
   log(PREDEFINED_LOG_MESSAGES.generatePrismaClient.action);
 
-
   if (installPrismaClient) {
     try {
-      const installCmd = installingPrismaCLIWithPM();
+      const installCmd = installingPrismaClientWithPM();
 
       await execa(installCmd.pm, installCmd.command, {
         cwd: directory,

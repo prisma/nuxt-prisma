@@ -30,6 +30,7 @@ interface ModuleOptions extends Prisma.PrismaClientOptions {
   runMigration: boolean;
   installClient: boolean;
   installCLI: boolean;
+  writeClientInLib: boolean;
   generateClient: boolean;
   installStudio: boolean;
   skipInstallations: boolean;
@@ -57,6 +58,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     runMigration: true,
     installClient: true,
     installCLI: true,
+    writeClientInLib: true,
     generateClient: true,
     installStudio: true,
     skipInstallations: false,
@@ -226,7 +228,9 @@ export default defineNuxtModule<PrismaExtendedModule>({
       await prismaMigrateWorkflow();
     }
 
-    await writeClientInLib(resolveProject("lib", "prisma.ts"));
+    if (options.writeClientInLib) {
+      await writeClientInLib(resolveProject("lib", "prisma.ts"));
+    }
 
     if (options.generateClient) {
       await generateClient(PROJECT_PATH, options.installClient);

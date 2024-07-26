@@ -32,7 +32,6 @@ interface ModuleOptions extends Prisma.PrismaClientOptions {
   installCLI: boolean;
   generateClient: boolean;
   installStudio: boolean;
-  skipInstallations: boolean;
   autoSetupPrisma: boolean;
 }
 
@@ -59,7 +58,6 @@ export default defineNuxtModule<PrismaExtendedModule>({
     installCLI: true,
     generateClient: true,
     installStudio: true,
-    skipInstallations: false,
     autoSetupPrisma: false,
   },
 

@@ -29,7 +29,7 @@ export async function isPrismaCLIInstalled(
   directory: string,
 ): Promise<boolean> {
   try {
-    await execa("prisma", ["version"], { cwd: directory });
+    await execa("npx", ["prisma", "version"], { cwd: directory });
     logSuccess(PREDEFINED_LOG_MESSAGES.isPrismaCLIinstalled.yes);
     return true;
   } catch (error) {
@@ -72,7 +72,7 @@ export async function initPrisma({
   provider = "sqlite",
   datasourceUrl,
 }: PrismaInitOptions) {
-  const command = ["prisma", "init", "--datasource-provider"];
+  const command = ["npx", "prisma", "init", "--datasource-provider"];
 
   command.push(provider);
 

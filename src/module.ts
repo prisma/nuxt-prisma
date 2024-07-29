@@ -3,7 +3,7 @@ import {
   addPlugin,
   createResolver,
   addImportsDir,
-  addServerScanDir,
+  addServerImportsDir,
 } from "@nuxt/kit";
 import { fileURLToPath } from "url";
 import defu from "defu";
@@ -80,9 +80,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
       addImportsDir(resolver(runtimeDir, "composables"));
 
       // Auto-import from runtime/server/utils
-      addServerScanDir(
-        createResolver(import.meta.url).resolve("./runtime/server"),
-      );
+      addServerImportsDir(resolver(runtimeDir, "utils"));
 
       nuxt.options.vite.optimizeDeps ||= {};
       nuxt.options.vite.optimizeDeps = {

@@ -4,6 +4,8 @@ const post = await prisma.post.findFirst();
 </script>
 
 <template>
-  <div>Posts</div>
-  <p>{{ post?.title ?? "There is no post." }}</p>
+  <div>
+    <div>Posts</div>
+    <p>{{ post?.title ?? "There is no post." }}</p>
+  </div>
 </template>

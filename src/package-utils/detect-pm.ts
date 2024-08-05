@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { existsSync } from "fs";
+import { logWarning } from "./log-helpers";
 
 type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
@@ -25,6 +26,7 @@ function detectPackageManager(): PackageManager {
   }
 
   // Default to npm if none of the above are found
+  logWarning("Could not find any package manager files. Defaulting to npm.");
   return "npm";
 }
 

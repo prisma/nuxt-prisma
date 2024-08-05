@@ -1,27 +1,41 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { existsSync } from "fs";
 import { logWarning } from "./log-helpers";
+import path, { dirname } from "path";
 
 type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
 function detectPackageManager(): PackageManager {
+  let projectRoot = process.cwd();
+
+  // Find the project root, in case workspaces are being used.
+  do {
+    projectRoot = path.resolve(projectRoot, "..");
+  } while (projectRoot !== "/" && !existsSync(`${projectRoot}/package.json`));
+
   // Check for package-lock.json
-  if (existsSync("package-lock.json")) {
+  if (
+    existsSync("package-lock.json") ||
+    existsSync(`${projectRoot}/package-lock.json`)
+  ) {
     return "npm";
   }
 
   // Check for yarn.lock
-  if (existsSync("yarn.lock")) {
+  if (existsSync("yarn.lock") || existsSync(`${projectRoot}/yarn.lock`)) {
     return "yarn";
   }
 
   // Check for pnpm-lock.yaml
-  if (existsSync("pnpm-lock.yaml")) {
+  if (
+    existsSync("pnpm-lock.yaml") ||
+    existsSync(`${projectRoot}/pnpm-lock.yaml`)
+  ) {
     return "pnpm";
   }
 
   // bun.lockb
-  if (existsSync("bun.lockb")) {
+  if (existsSync("bun.lockb") || existsSync(`${projectRoot}/bun.lockb`)) {
     return "bun";
   }
 

@@ -72,7 +72,7 @@ export async function initPrisma({
   provider = "sqlite",
   datasourceUrl,
 }: PrismaInitOptions) {
-  const command = ["npx", "prisma", "init", "--datasource-provider"];
+  const command = ["prisma", "init", "--datasource-provider"];
 
   command.push(provider);
 

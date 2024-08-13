@@ -23,6 +23,7 @@ import {
 } from "./package-utils/setup-helpers";
 import { log, PREDEFINED_LOG_MESSAGES } from "./package-utils/log-helpers";
 import type { Prisma } from "@prisma/client";
+import type { PackageManager } from "./package-utils/detect-pm";
 
 interface ModuleOptions extends Prisma.PrismaClientOptions {
   writeToSchema: boolean;
@@ -33,6 +34,7 @@ interface ModuleOptions extends Prisma.PrismaClientOptions {
   generateClient: boolean;
   installStudio: boolean;
   autoSetupPrisma: boolean;
+  packageManager?: PackageManager;
 }
 
 export type PrismaExtendedModule = ModuleOptions;
@@ -59,6 +61,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     generateClient: true,
     installStudio: true,
     autoSetupPrisma: false,
+    packageManager: undefined,
   },
 
   async setup(options, nuxt) {
@@ -118,7 +121,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
       // if Prisma CLI is installed skip the following step.
       if (!prismaInstalled) {
-        await installPrismaCLI(PROJECT_PATH);
+        await installPrismaCLI(PROJECT_PATH, options.packageManager);
       }
     }
 
@@ -225,7 +228,11 @@ export default defineNuxtModule<PrismaExtendedModule>({
     await writeClientInLib(resolveProject("lib", "prisma.ts"));
 
     if (options.generateClient) {
-      await generateClient(PROJECT_PATH, options.installClient);
+      await generateClient(
+        PROJECT_PATH,
+        options.installClient,
+        options.packageManager,
+      );
     }
 
     await prismaStudioWorkflow();

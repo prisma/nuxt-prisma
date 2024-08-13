@@ -1,14 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { existsSync } from "fs";
 import { logWarning } from "./log-helpers";
-import path, { dirname } from "path";
+import path from "path";
 
-type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
+export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
-function detectPackageManager(): PackageManager {
+function detectPackageManager(packageManager?: PackageManager): PackageManager {
+  // If a package manager was explicitly defined, use that one.
+  if (packageManager) return packageManager;
+
   let projectRoot = process.cwd();
 
   // Find the project root, in case workspaces are being used.
+  // Please note that resolveProject will not work, since it picks the layer directory.
   do {
     projectRoot = path.resolve(projectRoot, "..");
   } while (projectRoot !== "/" && !existsSync(`${projectRoot}/package.json`));
@@ -44,8 +48,8 @@ function detectPackageManager(): PackageManager {
   return "npm";
 }
 
-export const installingPrismaCLIWithPM = () => {
-  const pm = detectPackageManager();
+export const installingPrismaCLIWithPM = (packageManager?: PackageManager) => {
+  const pm = detectPackageManager(packageManager);
 
   switch (pm) {
     case "npm": {
@@ -81,8 +85,10 @@ export const installingPrismaCLIWithPM = () => {
   }
 };
 
-export const installingPrismaClientWithPM = () => {
-  const pm = detectPackageManager();
+export const installingPrismaClientWithPM = (
+  packageManager?: PackageManager,
+) => {
+  const pm = detectPackageManager(packageManager);
 
   switch (pm) {
     case "npm": {

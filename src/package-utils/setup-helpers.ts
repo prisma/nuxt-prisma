@@ -2,6 +2,7 @@ import { execa } from "execa";
 import {
   installingPrismaClientWithPM,
   installingPrismaCLIWithPM,
+  type PackageManager,
 } from "./detect-pm";
 import {
   log,
@@ -39,9 +40,12 @@ export async function isPrismaCLIInstalled(
   }
 }
 
-export async function installPrismaCLI(directory: string) {
+export async function installPrismaCLI(
+  directory: string,
+  packageManager?: PackageManager,
+) {
   try {
-    const installCmd = installingPrismaCLIWithPM();
+    const installCmd = installingPrismaCLIWithPM(packageManager);
 
     await execa(installCmd.pm, installCmd.command, {
       cwd: directory,
@@ -72,19 +76,19 @@ export async function initPrisma({
   provider = "sqlite",
   datasourceUrl,
 }: PrismaInitOptions) {
-  const command = ["npx", "prisma", "init", "--datasource-provider"];
+  const commandArgs = ["prisma", "init", "--datasource-provider"];
 
-  command.push(provider);
+  commandArgs.push(provider);
 
   if (datasourceUrl) {
-    command.push("--url");
-    command.push(datasourceUrl);
+    commandArgs.push("--url");
+    commandArgs.push(datasourceUrl);
   }
 
   try {
     log(PREDEFINED_LOG_MESSAGES.initPrisma.action);
 
-    const { stdout: initializePrisma } = await execa("npx", command, {
+    const { stdout: initializePrisma } = await execa("npx", commandArgs, {
       cwd: directory,
     });
 
@@ -174,12 +178,13 @@ export async function formatSchema(directory: string) {
 export async function generateClient(
   directory: string,
   installPrismaClient: boolean = true,
+  packageManager?: PackageManager,
 ) {
   log(PREDEFINED_LOG_MESSAGES.generatePrismaClient.action);
 
   if (installPrismaClient) {
     try {
-      const installCmd = installingPrismaClientWithPM();
+      const installCmd = installingPrismaClientWithPM(packageManager);
 
       await execa(installCmd.pm, installCmd.command, {
         cwd: directory,

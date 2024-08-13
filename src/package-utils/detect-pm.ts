@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { existsSync } from "fs";
 import { logWarning } from "./log-helpers";
-import path from "path";
+import getProjectRoot from "./get-project-root";
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
@@ -9,13 +9,7 @@ function detectPackageManager(packageManager?: PackageManager): PackageManager {
   // If a package manager was explicitly defined, use that one.
   if (packageManager) return packageManager;
 
-  let projectRoot = process.cwd();
-
-  // Find the project root, in case workspaces are being used.
-  // Please note that resolveProject will not work, since it picks the layer directory.
-  do {
-    projectRoot = path.resolve(projectRoot, "..");
-  } while (projectRoot !== "/" && !existsSync(`${projectRoot}/package.json`));
+  const projectRoot = getProjectRoot();
 
   // Check for package-lock.json
   if (

@@ -124,23 +124,26 @@ export async function writeToSchema(prismaSchemaPath: string) {
       return false;
     }
 
-    const addModel = `
-            model User {
-              id    Int     @id @default(autoincrement())
-              email String  @unique
-              name  String?
-              posts Post[]
-            }
+    const addModel = `\
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+  posts Post[]
+}
 
-            model Post {
-              id        Int     @id @default(autoincrement())
-              title     String
-              content   String?
-              published Boolean @default(false)
-              author    User    @relation(fields: [authorId], references: [id])
-              authorId  Int
-            }
-          `;
+model Post {
+  id        Int     @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean @default(false)
+  author    User    @relation(fields: [authorId], references: [id])
+  authorId  Int
+}
+`;
+
+    // Don't bother adding the models if they already exist.
+    if (existingSchema.trim().includes(addModel.trim())) return;
 
     const updatedSchema = `${existingSchema.trim()}\n\n${addModel}`;
     writeFileSync(prismaSchemaPath, updatedSchema);
@@ -235,11 +238,12 @@ export async function installStudio(directory: string) {
 }
 
 export async function writeClientInLib(path: string) {
-  const existingContent = existsSync(path);
+  const existingContent = existsSync(`${path}/lib/prisma.ts`);
 
   try {
     if (!existingContent) {
-      const prismaClient = `import { PrismaClient } from '@prisma/client'
+      const prismaClient = `\
+import { PrismaClient } from '@prisma/client'
 
 const prismaClientSingleton = () => {
   return new PrismaClient()
@@ -256,16 +260,16 @@ export default prisma
 if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma
 `;
 
-      if (!existsSync("lib")) {
-        mkdirSync("lib");
+      if (!existsSync(`${path}/lib`)) {
+        mkdirSync(`${path}/lib`);
       }
 
-      if (existsSync("lib/prisma.ts")) {
+      if (existsSync(`${path}/lib/prisma.ts`)) {
         log(PREDEFINED_LOG_MESSAGES.writeClientInLib.found);
         return;
       }
 
-      writeFileSync("lib/prisma.ts", prismaClient);
+      writeFileSync(`${path}/lib/prisma.ts`, prismaClient);
 
       logSuccess(PREDEFINED_LOG_MESSAGES.writeClientInLib.success);
     }

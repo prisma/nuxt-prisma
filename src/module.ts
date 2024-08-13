@@ -24,6 +24,7 @@ import {
 import { log, PREDEFINED_LOG_MESSAGES } from "./package-utils/log-helpers";
 import type { Prisma } from "@prisma/client";
 import type { PackageManager } from "./package-utils/detect-pm";
+import getProjectRoot from "./package-utils/get-project-root";
 
 interface ModuleOptions extends Prisma.PrismaClientOptions {
   writeToSchema: boolean;
@@ -35,6 +36,7 @@ interface ModuleOptions extends Prisma.PrismaClientOptions {
   installStudio: boolean;
   autoSetupPrisma: boolean;
   packageManager?: PackageManager;
+  prismaRoot?: string;
 }
 
 export type PrismaExtendedModule = ModuleOptions;
@@ -62,11 +64,13 @@ export default defineNuxtModule<PrismaExtendedModule>({
     installStudio: true,
     autoSetupPrisma: false,
     packageManager: undefined,
+    prismaRoot: undefined,
   },
 
   async setup(options, nuxt) {
     const { resolve: resolveProject } = createResolver(nuxt.options.rootDir);
     const { resolve: resolver } = createResolver(import.meta.url);
+    const { resolve: resolveRoot } = createResolver(getProjectRoot());
     const runtimeDir = fileURLToPath(new URL("./runtime", import.meta.url));
 
     // Identifies which script is running: posinstall, dev or prod
@@ -113,7 +117,11 @@ export default defineNuxtModule<PrismaExtendedModule>({
       return;
     }
 
-    const PROJECT_PATH = resolveProject();
+    let projectPath = resolveProject();
+    if (options.prismaRoot?.length)
+      projectPath = resolveRoot(options.prismaRoot);
+
+    const PROJECT_PATH = projectPath;
 
     if (options.installCLI) {
       // Check if Prisma CLI is installed.
@@ -177,8 +185,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
       });
 
       // Add dummy models to the Prisma schema
-      await writeToSchema(resolveProject("prisma", "schema.prisma"));
-      await prismaMigrateWorkflow();
+      await writeToSchema(`${PROJECT_PATH}/prisma/schema.prisma`);
     };
 
     const prismaStudioWorkflow = async () => {
@@ -221,11 +228,10 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
     if (!prismaSchemaExists) {
       await prismaInitWorkflow();
-    } else {
-      await prismaMigrateWorkflow();
     }
 
-    await writeClientInLib(resolveProject("lib", "prisma.ts"));
+    await prismaMigrateWorkflow();
+    await writeClientInLib(PROJECT_PATH);
 
     if (options.generateClient) {
       await generateClient(

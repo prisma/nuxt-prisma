@@ -81,6 +81,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
       // Auto-import from runtime/server/utils
       addServerImportsDir(resolver(runtimeDir, "utils"));
+      addServerImportsDir(resolver(runtimeDir, "server/utils"));
 
       nuxt.options.vite.optimizeDeps ||= {};
       nuxt.options.vite.optimizeDeps = {

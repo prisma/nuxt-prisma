@@ -30,7 +30,8 @@
     "link": "npm link",
     "clean:playground": "rm -r ./playground/prisma ./playground/lib ./playground/node_modules",
     "prepare": "husky install",
-    "commit": "git-cz"
+    "commit": "npx git-cz",
+    "commitlint": "commitlint --edit"
   },
   "dependencies": {
     "@nuxt/devtools-kit": "^1.3.3",
@@ -64,7 +65,10 @@
   },
   "config": {
     "commitizen": {
-      "path": "./node_modules/cz-customizable"
+      "path": "node_modules/cz-customizable"
+    },
+    "cz-customizable": {
+      "config": "./.cz-config.cjs"
     }
   }
 }

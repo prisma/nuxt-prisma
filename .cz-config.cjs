@@ -2,7 +2,7 @@ module.exports = {
   types: [
     { value: "feat", name: "feat: ✨ A new feature" },
     { value: "fix", name: "fix: 🐛 A bug fix" },
-    { value: "docs", name: "docs: 📚 Documentation changes" },
+    { value: "docs", name: "docs: 📚 Documentation" },
     { value: "style", name: "style: 💄 Code style changes" },
     { value: "refactor", name: "refactor: ♻️ Code restructuring" },
     { value: "perf", name: "perf: ⚡ Performance improvements" },
@@ -13,7 +13,7 @@ module.exports = {
   allowCustomScopes: true,
   allowBreakingChanges: ["feat", "fix"],
   messages: {
-    type: "Select the type of change that you're committing:",
+    type: "Select the type of change you're committing:",
     scope: "Specify the scope (optional):",
     customScope: "Specify the custom scope:",
     subject: "Write a short description of the change:",

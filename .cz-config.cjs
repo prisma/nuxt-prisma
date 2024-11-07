@@ -1,0 +1,27 @@
+module.exports = {
+  types: [
+    { value: "feat", name: "feat: ✨ A new feature" },
+    { value: "fix", name: "fix: 🐛 A bug fix" },
+    { value: "docs", name: "docs: 📚 Documentation changes" },
+    { value: "style", name: "style: 💄 Code style changes" },
+    { value: "refactor", name: "refactor: ♻️ Code restructuring" },
+    { value: "perf", name: "perf: ⚡ Performance improvements" },
+    { value: "test", name: "test: ✅ Adding or modifying tests" },
+    { value: "chore", name: "chore: 🔧 Other changes" },
+  ],
+  scopes: [],
+  allowCustomScopes: true,
+  allowBreakingChanges: ["feat", "fix"],
+  messages: {
+    type: "Select the type of change that you're committing:",
+    scope: "Specify the scope (optional):",
+    customScope: "Specify the custom scope:",
+    subject: "Write a short description of the change:",
+    body: "Provide a longer description (optional):",
+    breaking: "List any BREAKING CHANGES (optional):",
+    footer: "Add issue number (e.g., #1234):",
+    confirmCommit: "Confirm your commit message:",
+  },
+  footerPrefix: "Issue:",
+  subjectLimit: 100,
+};

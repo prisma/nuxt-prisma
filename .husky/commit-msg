@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run commitlint to check the commit message format
+npx --no -- commitlint --edit "$1"
+
+# If no commit message is provided, use Commitizen
+if [ -z "$1" ]; then
+  exec < /dev/tty && npm run commit
+  exit 1  # Stop the default git commit message prompt
+fi

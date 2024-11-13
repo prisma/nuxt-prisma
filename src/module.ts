@@ -33,6 +33,7 @@ interface ModuleOptions extends Prisma.PrismaClientOptions {
   generateClient: boolean;
   installStudio: boolean;
   autoSetupPrisma: boolean;
+  skipPrompts: boolean;
 }
 
 export type PrismaExtendedModule = ModuleOptions;
@@ -59,6 +60,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     generateClient: true,
     installStudio: true,
     autoSetupPrisma: false,
+    skipPrompts: false,
   },
 
   async setup(options, nuxt) {
@@ -68,6 +70,9 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
     // Identifies which script is running: posinstall, dev or prod
     const npm_lifecycle_event = process.env?.npm_lifecycle_event;
+
+    const skip_all_prompts =
+      options.skipPrompts || npm_lifecycle_event === "dev:build";
 
     const prepareModule = () => {
       // Enable server components for Nuxt
@@ -157,8 +162,8 @@ export default defineNuxtModule<PrismaExtendedModule>({
       }
 
       const promptResult = await executeRequiredPrompts({
-        promptForMigrate: true,
-        promptForPrismaStudio: false,
+        promptForMigrate: true && !skip_all_prompts,
+        promptForPrismaStudio: false && !skip_all_prompts,
       });
 
       if (promptResult?.promptForPrismaMigrate && options.runMigration) {
@@ -208,8 +213,8 @@ export default defineNuxtModule<PrismaExtendedModule>({
       }
 
       const promptResults = await executeRequiredPrompts({
-        promptForMigrate: false,
-        promptForPrismaStudio: true,
+        promptForMigrate: false && !skip_all_prompts,
+        promptForPrismaStudio: true && !skip_all_prompts,
       });
 
       if (promptResults?.promptForInstallingStudio) {

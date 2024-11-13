@@ -22,6 +22,7 @@ jobs:
         with:
           node-version: "lts/*"
       - run: npm clean-install
+      - run: npx nuxi prepare
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: npm audit signatures
       - name: Release

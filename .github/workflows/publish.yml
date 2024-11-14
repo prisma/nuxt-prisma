@@ -21,6 +21,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
+      - name: Configure npm for Authentication
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_NUXT_TOKEN }}" >> ~/.npmrc
       - run: npm clean-install
       - run: npx nuxi prepare
       - run: npm run dev:build
@@ -29,5 +32,4 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_NUXT_TOKEN }}
         run: npm run release

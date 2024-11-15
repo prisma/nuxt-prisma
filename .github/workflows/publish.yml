@@ -28,10 +28,12 @@ jobs:
       - run: npm clean-install
       - run: npx nuxi prepare
       - run: npm run dev:build
+      - run: npm run lint
+      - run: npm run prepack
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: npm audit signatures
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_NUXT_TOKEN }}
-        run: npm run release
+        run: npx semantic-release

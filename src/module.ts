@@ -25,6 +25,7 @@ import { log, PREDEFINED_LOG_MESSAGES } from "./package-utils/log-helpers";
 import type { Prisma } from "@prisma/client";
 
 interface ModuleOptions extends Prisma.PrismaClientOptions {
+  writeClientInLib: boolean;
   writeToSchema: boolean;
   formatSchema: boolean;
   runMigration: boolean;
@@ -52,6 +53,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     },
     log: [],
     errorFormat: "pretty",
+    writeClientInLib: true,
     writeToSchema: true,
     formatSchema: true,
     runMigration: true,
@@ -228,7 +230,9 @@ export default defineNuxtModule<PrismaExtendedModule>({
       await prismaMigrateWorkflow();
     }
 
-    await writeClientInLib(resolveProject("lib", "prisma.ts"));
+    if (options.writeClientInLib) {
+      await writeClientInLib(resolveProject("lib", "prisma.ts"));
+    }
 
     if (options.generateClient) {
       await generateClient(PROJECT_PATH, options.installClient);

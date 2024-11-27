@@ -1,0 +1,67 @@
+name: Publish Experimental Release
+on:
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: write # Required for publishing releases
+jobs:
+  experimental-release:
+    name: Experimental Dev Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # For publishing to GitHub releases
+      id-token: write # For npm provenance
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Step 2: Setup Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "npm"
+
+      # Step 3: Configure npm for authentication
+      - name: Configure npm for Authentication
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_NUXT_TOKEN }}" >> ~/.npmrc
+          echo "@prisma:registry=https://registry.npmjs.org/" >> ~/.npmrc
+
+      # Step 4: Install dependencies
+      - name: Install Dependencies
+        run: npm clean-install
+
+      # Step 5: Prepare project
+      - name: Prepare Project
+        run: npx nuxi prepare
+
+      # Step 6: Build project
+      - name: Build Project
+        run: npm run dev:build
+
+      # Step 7: Lint the code
+      - name: Lint Code
+        run: npm run lint
+
+      # Step 8: Prepack the project
+      - name: Prepack
+        run: npm run prepack
+
+      # Step 9: Audit dependencies
+      - name: Audit Dependencies
+        run: npm audit signatures
+
+      # Step 10: Set experimental version
+      - name: Set Experimental Version
+        run: npm version --no-git-tag-version 0.0.0-experimental-${GITHUB_SHA::7}
+
+      # Step 11: Publish Experimental Release
+      - name: Publish Experimental Release
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_NUXT_TOKEN }}
+        run: npm publish --access public --tag experimental

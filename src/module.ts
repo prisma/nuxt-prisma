@@ -88,10 +88,12 @@ export default defineNuxtModule<PrismaExtendedModule>({
       addServerImportsDir(resolver(runtimeDir, "utils"));
       addServerImportsDir(resolver(runtimeDir, "server/utils"));
 
-      nuxt.options.vite.optimizeDeps ||= {};
-      nuxt.options.vite.optimizeDeps = {
-        include: ["@prisma/nuxt > @prisma/client"],
-      };
+      nuxt.options.vite.optimizeDeps = defu(
+        nuxt.options.vite.optimizeDeps || {},
+        {
+          include: ["@prisma/nuxt > @prisma/client"],
+        },
+      );
     };
 
     const force_skip_prisma_setup =
@@ -212,14 +214,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
         return;
       }
 
-      const promptResults = await executeRequiredPrompts({
-        promptForMigrate: false && !skip_all_prompts,
-        promptForPrismaStudio: true && !skip_all_prompts,
-      });
-
-      if (promptResults?.promptForInstallingStudio) {
-        await installAndStartPrismaStudio();
-      }
+      await installAndStartPrismaStudio();
     };
 
     if (!prismaSchemaExists) {

@@ -71,5 +71,4 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_NUXT_TOKEN }}
         run: |
           echo "Publishing preview release ${{ env.version }}"
-          # Use semantic-release or another tool to publish the preview version
-          npx semantic-release --no-ci --branches main --tag-format "v${{ env.version }}"
+          npx semantic-release --no-ci --branches main --tag-format "v${{version}}-pr-${{ github.event.pull_request.number }}-$(git rev-parse --short HEAD)"

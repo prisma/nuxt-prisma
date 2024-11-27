@@ -1,0 +1,75 @@
+name: Preview Release on PR
+on:
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: write # Required for publishing releases
+jobs:
+  preview-release:
+    name: Preview Dev Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # For publishing to GitHub releases
+      id-token: write # For npm provenance
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Step 2: Setup Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "npm"
+
+      # Step 3: Configure npm for authentication
+      - name: Configure npm for Authentication
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_NUXT_TOKEN }}" >> ~/.npmrc
+          echo "@prisma:registry=https://registry.npmjs.org/" >> ~/.npmrc
+
+      # Step 4: Install dependencies
+      - name: Install Dependencies
+        run: npm clean-install
+
+      # Step 5: Prepare project
+      - name: Prepare Project
+        run: npx nuxi prepare
+
+      # Step 6: Build project
+      - name: Build Project
+        run: npm run dev:build
+
+      # Step 7: Lint the code
+      - name: Lint Code
+        run: npm run lint
+
+      # Step 8: Prepack the project
+      - name: Prepack
+        run: npm run prepack
+
+      # Step 9: Audit dependencies
+      - name: Audit Dependencies
+        run: npm audit signatures
+
+      # Step 10: Generate and log preview release version
+      - name: Generate and Log Preview Release Version
+        id: preview_version
+        run: |
+          VERSION="0.0.0-pr-${{ github.event.pull_request.number }}-$(git rev-parse --short HEAD)"
+          echo "Preview release version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_ENV
+
+      # Step 11: Create a preview release
+      - name: Publish Preview Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_NUXT_TOKEN }}
+        run: |
+          echo "Publishing preview release ${{ env.version }}"
+          # Use semantic-release or another tool to publish the preview version
+          npx semantic-release --no-ci --branches main --tag-format "v${{ env.version }}"

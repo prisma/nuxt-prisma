@@ -216,7 +216,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
       const promptResults = await executeRequiredPrompts({
         promptForMigrate: false && !skip_all_prompts,
-        promptForPrismaStudio: true && !skip_all_prompts,
+        promptForPrismaStudio: false && !skip_all_prompts,
       });
 
       if (promptResults?.promptForInstallingStudio) {

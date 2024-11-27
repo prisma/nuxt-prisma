@@ -62,13 +62,14 @@ jobs:
         run: |
           VERSION="0.0.0-pr-${{ github.event.pull_request.number }}-$(git rev-parse --short HEAD)"
           echo "Preview release version: $VERSION"
-          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       # Step 11: Create a preview release
       - name: Publish Preview Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_NUXT_TOKEN }}
+          VERSION: ${{ env.VERSION }}
         run: |
-          echo "Publishing preview release ${{ env.version }}"
-          npx semantic-release --no-ci --branches main --tag-format "v${{version}}-pr-${{ github.event.pull_request.number }}-$(git rev-parse --short HEAD)"
+          echo "Publishing preview release $VERSION"
+          npx semantic-release --no-ci --branches main --tag-format "v${VERSION}"

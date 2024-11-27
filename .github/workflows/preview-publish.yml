@@ -1,4 +1,4 @@
-name: Preview Release on PR
+name: Publish Experimental Release
 on:
   pull_request:
     branches:
@@ -6,8 +6,8 @@ on:
 permissions:
   contents: write # Required for publishing releases
 jobs:
-  preview-release:
-    name: Preview Dev Release
+  experimental-release:
+    name: Experimental Dev Release
     runs-on: ubuntu-latest
     permissions:
       contents: write # For publishing to GitHub releases
@@ -56,20 +56,12 @@ jobs:
       - name: Audit Dependencies
         run: npm audit signatures
 
-      # Step 10: Generate and log preview release version
-      - name: Generate and Log Preview Release Version
-        id: preview_version
-        run: |
-          VERSION="0.0.0-pr-${{ github.event.pull_request.number }}-$(git rev-parse --short HEAD)"
-          echo "Preview release version: $VERSION"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      # Step 10: Set experimental version
+      - name: Set Experimental Version
+        run: npm version --no-git-tag-version 0.0.0-experimental-${GITHUB_SHA::7}
 
-      # Step 11: Create a preview release
-      - name: Publish Preview Release
+      # Step 11: Publish Experimental Release
+      - name: Publish Experimental Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_NUXT_TOKEN }}
-          VERSION: ${{ env.VERSION }}
-        run: |
-          echo "Publishing preview release $VERSION"
-          npx semantic-release --no-ci --branches main --tag-format "v${VERSION}"
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_NUXT_TOKEN }}
+        run: npm publish --access public --tag experimental

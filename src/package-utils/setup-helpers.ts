@@ -211,13 +211,13 @@ export async function generateClient(
 
 export async function installStudio(directory: string) {
   try {
-    const { spawn } = require("child_process");
-
     log(PREDEFINED_LOG_MESSAGES.installStudio.action);
 
-    await spawn("npx", ["prisma", "studio", "--browser", "none"], {
-      cwd: directory,
+    const subprocess = execa("npx", ["prisma", "studio", "--browser", "none"], {
+      cwd: directory
     });
+    
+    subprocess.unref();
 
     logSuccess(PREDEFINED_LOG_MESSAGES.installStudio.success);
 

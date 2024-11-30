@@ -2,6 +2,7 @@ import { execa } from "execa";
 import {
   installingPrismaClientWithPM,
   installingPrismaCLIWithPM,
+  type PackageManager,
 } from "./detect-pm";
 import {
   log,
@@ -39,9 +40,12 @@ export async function isPrismaCLIInstalled(
   }
 }
 
-export async function installPrismaCLI(directory: string) {
+export async function installPrismaCLI(
+  directory: string,
+  packageManager?: PackageManager,
+) {
   try {
-    const installCmd = installingPrismaCLIWithPM();
+    const installCmd = installingPrismaCLIWithPM(packageManager);
 
     await execa(installCmd.pm, installCmd.command, {
       cwd: directory,
@@ -72,19 +76,19 @@ export async function initPrisma({
   provider = "sqlite",
   datasourceUrl,
 }: PrismaInitOptions) {
-  const command = ["prisma", "init", "--datasource-provider"];
+  const commandArgs = ["prisma", "init", "--datasource-provider"];
 
-  command.push(provider);
+  commandArgs.push(provider);
 
   if (datasourceUrl) {
-    command.push("--url");
-    command.push(datasourceUrl);
+    commandArgs.push("--url");
+    commandArgs.push(datasourceUrl);
   }
 
   try {
     log(PREDEFINED_LOG_MESSAGES.initPrisma.action);
 
-    const { stdout: initializePrisma } = await execa("npx", command, {
+    const { stdout: initializePrisma } = await execa("npx", commandArgs, {
       cwd: directory,
     });
 
@@ -120,23 +124,26 @@ export async function writeToSchema(prismaSchemaPath: string) {
       return false;
     }
 
-    const addModel = `
-            model User {
-              id    Int     @id @default(autoincrement())
-              email String  @unique
-              name  String?
-              posts Post[]
-            }
+    const addModel = `\
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+  posts Post[]
+}
 
-            model Post {
-              id        Int     @id @default(autoincrement())
-              title     String
-              content   String?
-              published Boolean @default(false)
-              author    User    @relation(fields: [authorId], references: [id])
-              authorId  Int
-            }
-          `;
+model Post {
+  id        Int     @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean @default(false)
+  author    User    @relation(fields: [authorId], references: [id])
+  authorId  Int
+}
+`;
+
+    // Don't bother adding the models if they already exist.
+    if (existingSchema.trim().includes(addModel.trim())) return;
 
     const updatedSchema = `${existingSchema.trim()}\n\n${addModel}`;
     writeFileSync(prismaSchemaPath, updatedSchema);
@@ -174,12 +181,13 @@ export async function formatSchema(directory: string) {
 export async function generateClient(
   directory: string,
   installPrismaClient: boolean = true,
+  packageManager?: PackageManager,
 ) {
   log(PREDEFINED_LOG_MESSAGES.generatePrismaClient.action);
 
   if (installPrismaClient) {
     try {
-      const installCmd = installingPrismaClientWithPM();
+      const installCmd = installingPrismaClientWithPM(packageManager);
 
       await execa(installCmd.pm, installCmd.command, {
         cwd: directory,
@@ -214,9 +222,9 @@ export async function installStudio(directory: string) {
     log(PREDEFINED_LOG_MESSAGES.installStudio.action);
 
     const subprocess = execa("npx", ["prisma", "studio", "--browser", "none"], {
-      cwd: directory
+      cwd: directory,
     });
-    
+
     subprocess.unref();
 
     logSuccess(PREDEFINED_LOG_MESSAGES.installStudio.success);
@@ -230,11 +238,12 @@ export async function installStudio(directory: string) {
 }
 
 export async function writeClientInLib(path: string) {
-  const existingContent = existsSync(path);
+  const existingContent = existsSync(`${path}/lib/prisma.ts`);
 
   try {
     if (!existingContent) {
-      const prismaClient = `import { PrismaClient } from '@prisma/client'
+      const prismaClient = `\
+import { PrismaClient } from '@prisma/client'
 
 const prismaClientSingleton = () => {
   return new PrismaClient()
@@ -251,16 +260,16 @@ export default prisma
 if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma
 `;
 
-      if (!existsSync("lib")) {
-        mkdirSync("lib");
+      if (!existsSync(`${path}/lib`)) {
+        mkdirSync(`${path}/lib`);
       }
 
-      if (existsSync("lib/prisma.ts")) {
+      if (existsSync(`${path}/lib/prisma.ts`)) {
         log(PREDEFINED_LOG_MESSAGES.writeClientInLib.found);
         return;
       }
 
-      writeFileSync("lib/prisma.ts", prismaClient);
+      writeFileSync(`${path}/lib/prisma.ts`, prismaClient);
 
       logSuccess(PREDEFINED_LOG_MESSAGES.writeClientInLib.success);
     }

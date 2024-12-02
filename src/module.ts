@@ -25,7 +25,7 @@ import { log, PREDEFINED_LOG_MESSAGES } from "./package-utils/log-helpers";
 import type { Prisma } from "@prisma/client";
 
 interface ModuleOptions extends Prisma.PrismaClientOptions {
-  writeClientInLib: boolean;
+  setupGlobalPrismaClientInLib: boolean;
   writeToSchema: boolean;
   formatSchema: boolean;
   runMigration: boolean;

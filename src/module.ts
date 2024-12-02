@@ -230,7 +230,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
       await prismaMigrateWorkflow();
     }
 
-    if (options.writeClientInLib) {
+    if (options.setupGlobalPrismaClientInLib) {
       await writeClientInLib(resolveProject("lib", "prisma.ts"));
     }
 

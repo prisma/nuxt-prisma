@@ -91,7 +91,10 @@ export default defineNuxtModule<PrismaExtendedModule>({
       nuxt.options.vite.optimizeDeps = defu(
         nuxt.options.vite.optimizeDeps || {},
         {
-          include: ["@prisma/nuxt > @prisma/client"],
+          include: [
+            ...(nuxt.options.vite.optimizeDeps?.include || []),
+            "@prisma/nuxt > @prisma/client",
+          ],
         },
       );
     };

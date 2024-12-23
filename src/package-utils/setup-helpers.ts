@@ -45,7 +45,7 @@ export async function installPrismaCLI(
   packageManager?: PackageManager,
 ) {
   try {
-    const installCmd = installingPrismaCLIWithPM(packageManager);
+    const installCmd = installingPrismaCLIWithPM(directory, packageManager);
 
     await execa(installCmd.pm, installCmd.command, {
       cwd: directory,
@@ -152,13 +152,17 @@ model Post {
   }
 }
 
-export async function runMigration(directory: string) {
+export async function runMigration(directory: string, schemaPath: string[]) {
   try {
     log(PREDEFINED_LOG_MESSAGES.runMigration.action);
 
-    await execa("npx", ["prisma", "migrate", "dev", "--name", "init"], {
-      cwd: directory,
-    });
+    await execa(
+      "npx",
+      ["prisma", "migrate", "dev", "--name", "init"].concat(schemaPath),
+      {
+        cwd: directory,
+      },
+    );
     logSuccess(PREDEFINED_LOG_MESSAGES.runMigration.success);
     return true;
   } catch (err) {
@@ -169,16 +173,18 @@ export async function runMigration(directory: string) {
   }
 }
 
-export async function formatSchema(directory: string) {
+export async function formatSchema(directory: string, schemaPath: string[]) {
   try {
     log(PREDEFINED_LOG_MESSAGES.formatSchema.action);
-    await execa("npx", ["prisma", "format"], { cwd: directory });
+    await execa("npx", ["prisma", "format"].concat(schemaPath), {
+      cwd: directory,
+    });
   } catch {
     logError(PREDEFINED_LOG_MESSAGES.formatSchema.error);
   }
 }
 
-export async function generateClient(
+export async function installPrismaClient(
   directory: string,
   installPrismaClient: boolean = true,
   packageManager?: PackageManager,
@@ -187,7 +193,10 @@ export async function generateClient(
 
   if (installPrismaClient) {
     try {
-      const installCmd = installingPrismaClientWithPM(packageManager);
+      const installCmd = installingPrismaClientWithPM(
+        directory,
+        packageManager,
+      );
 
       await execa(installCmd.pm, installCmd.command, {
         cwd: directory,
@@ -200,30 +209,42 @@ export async function generateClient(
       // log(error);
     }
   }
+}
 
+export async function generatePrismaClient(
+  directory: string,
+  prismaSchemaPath: string[],
+  verboseLog: boolean = false,
+) {
   try {
     const { stdout: generateClient } = await execa(
       "npx",
-      ["prisma", "generate"],
+      ["prisma", "generate"].concat(prismaSchemaPath),
       { cwd: directory },
     );
 
     log("\n" + generateClient.split("\n").slice(0, 4).join("\n") + "\n");
-
-    // log(generateClient);
   } catch (err) {
     logError(PREDEFINED_LOG_MESSAGES.generatePrismaClient.error);
-    // log(err);
+    if (verboseLog) {
+      log(err);
+    }
   }
 }
 
-export async function installStudio(directory: string) {
+export async function installStudio(directory: string, schemaPath?: string) {
   try {
     log(PREDEFINED_LOG_MESSAGES.installStudio.action);
 
-    const subprocess = execa("npx", ["prisma", "studio", "--browser", "none"], {
-      cwd: directory,
-    });
+    const schemaLocation = schemaPath ? ["--schema", schemaPath] : [];
+
+    const subprocess = execa(
+      "npx",
+      ["prisma", "studio", "--browser", "none"].concat(schemaLocation),
+      {
+        cwd: directory,
+      },
+    );
 
     subprocess.unref();
 

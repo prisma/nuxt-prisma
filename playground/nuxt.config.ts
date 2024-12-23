@@ -1,6 +1,10 @@
 export default defineNuxtConfig({
   modules: ["../src/module"],
-  prisma: {},
+  extends: ["./database"],
+  prisma: {
+    prismaRoot: "./database",
+    prismaSchemaPath: "./database/prisma/schema.prisma",
+  },
   experimental: {
     componentIslands: true,
   },

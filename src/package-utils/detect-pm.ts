@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { existsSync } from "fs";
 import { logWarning } from "./log-helpers";
-import getProjectRoot from "./get-project-root";
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
-function detectPackageManager(packageManager?: PackageManager): PackageManager {
+function detectPackageManager(
+  projectRoot: string,
+  packageManager?: PackageManager,
+): PackageManager {
   // If a package manager was explicitly defined, use that one.
   if (packageManager) return packageManager;
-
-  const projectRoot = getProjectRoot();
 
   // Check for package-lock.json
   if (
@@ -42,8 +42,11 @@ function detectPackageManager(packageManager?: PackageManager): PackageManager {
   return "npm";
 }
 
-export const installingPrismaCLIWithPM = (packageManager?: PackageManager) => {
-  const pm = detectPackageManager(packageManager);
+export const installingPrismaCLIWithPM = (
+  projectRoot: string,
+  packageManager?: PackageManager,
+) => {
+  const pm = detectPackageManager(projectRoot, packageManager);
 
   switch (pm) {
     case "npm": {
@@ -80,9 +83,10 @@ export const installingPrismaCLIWithPM = (packageManager?: PackageManager) => {
 };
 
 export const installingPrismaClientWithPM = (
+  projectRoot: string,
   packageManager?: PackageManager,
 ) => {
-  const pm = detectPackageManager(packageManager);
+  const pm = detectPackageManager(projectRoot, packageManager);
 
   switch (pm) {
     case "npm": {

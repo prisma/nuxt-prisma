@@ -74,6 +74,10 @@ export function checkIfPrismaSchemaExists(paths: string[]) {
 }
 
 function moveEnvFileContent(dirA: string, dirB: string) {
+  if (dirA === dirB) {
+    return;
+  }
+
   const envFileA = join(dirA, ".env");
   const envFileB = join(dirB, ".env");
 

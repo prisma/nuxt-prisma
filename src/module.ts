@@ -53,7 +53,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     },
     log: [],
     errorFormat: "pretty",
-    writeClientInLib: true,
+    setupGlobalPrismaClientInLib: true,
     writeToSchema: true,
     formatSchema: true,
     runMigration: true,

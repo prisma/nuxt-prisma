@@ -4,6 +4,10 @@ export function logSuccess(message: string) {
   console.log(chalk.green(`✔ ${message}`));
 }
 
+export function logWarning(message: string) {
+  console.warn(chalk.yellow(`⚠️ ${message}`));
+}
+
 export function logError(message: string) {
   console.error(chalk.red(`✘ ${message}`));
 }

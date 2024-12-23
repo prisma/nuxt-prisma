@@ -21,12 +21,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
+      - name: Configure npm for Authentication
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_NUXT_TOKEN }}" >> ~/.npmrc
+          echo "@prisma:registry=https://registry.npmjs.org/" >> ~/.npmrc
       - run: npm clean-install
       - run: npx nuxi prepare
+      - run: npm run dev:build
+      - run: npm run lint
+      - run: npm run prepack
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: npm audit signatures
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_NUXT_TOKEN }}
-        run: npm run release
+        run: npx semantic-release

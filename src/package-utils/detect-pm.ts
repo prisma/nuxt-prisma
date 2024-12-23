@@ -1,35 +1,52 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { existsSync } from "fs";
+import { logWarning } from "./log-helpers";
 
-type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
+export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
-function detectPackageManager(): PackageManager {
+function detectPackageManager(
+  projectRoot: string,
+  packageManager?: PackageManager,
+): PackageManager {
+  // If a package manager was explicitly defined, use that one.
+  if (packageManager) return packageManager;
+
   // Check for package-lock.json
-  if (existsSync("package-lock.json")) {
+  if (
+    existsSync("package-lock.json") ||
+    existsSync(`${projectRoot}/package-lock.json`)
+  ) {
     return "npm";
   }
 
   // Check for yarn.lock
-  if (existsSync("yarn.lock")) {
+  if (existsSync("yarn.lock") || existsSync(`${projectRoot}/yarn.lock`)) {
     return "yarn";
   }
 
   // Check for pnpm-lock.yaml
-  if (existsSync("pnpm-lock.yaml")) {
+  if (
+    existsSync("pnpm-lock.yaml") ||
+    existsSync(`${projectRoot}/pnpm-lock.yaml`)
+  ) {
     return "pnpm";
   }
 
   // bun.lockb
-  if (existsSync("bun.lockb")) {
+  if (existsSync("bun.lockb") || existsSync(`${projectRoot}/bun.lockb`)) {
     return "bun";
   }
 
   // Default to npm if none of the above are found
+  logWarning("Could not find any package manager files. Defaulting to npm.");
   return "npm";
 }
 
-export const installingPrismaCLIWithPM = () => {
-  const pm = detectPackageManager();
+export const installingPrismaCLIWithPM = (
+  projectRoot: string,
+  packageManager?: PackageManager,
+) => {
+  const pm = detectPackageManager(projectRoot, packageManager);
 
   switch (pm) {
     case "npm": {
@@ -65,8 +82,11 @@ export const installingPrismaCLIWithPM = () => {
   }
 };
 
-export const installingPrismaClientWithPM = () => {
-  const pm = detectPackageManager();
+export const installingPrismaClientWithPM = (
+  projectRoot: string,
+  packageManager?: PackageManager,
+) => {
+  const pm = detectPackageManager(projectRoot, packageManager);
 
   switch (pm) {
     case "npm": {

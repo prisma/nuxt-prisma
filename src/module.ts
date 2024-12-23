@@ -218,7 +218,8 @@ export default defineNuxtModule<PrismaExtendedModule>({
       }
 
       const installAndStartPrismaStudio = async () => {
-        await installStudio(PROJECT_PATH);
+        await installStudio(PROJECT_PATH, PRISMA_SCHEMA_CMD);
+
         nuxt.hooks.hook("devtools:customTabs", (tab) => {
           tab.push({
             name: "nuxt-prisma",

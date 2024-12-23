@@ -232,11 +232,12 @@ export async function generatePrismaClient(
   }
 }
 
-export async function installStudio(directory: string, schemaPath?: string) {
+export async function installStudio(
+  directory: string,
+  schemaLocation: string[],
+) {
   try {
     log(PREDEFINED_LOG_MESSAGES.installStudio.action);
-
-    const schemaLocation = schemaPath ? ["--schema", schemaPath] : [];
 
     const subprocess = execa(
       "npx",

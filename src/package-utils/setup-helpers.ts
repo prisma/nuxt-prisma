@@ -11,6 +11,7 @@ import {
   PREDEFINED_LOG_MESSAGES,
 } from "./log-helpers";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { join } from "path";
 
 export type DatabaseProviderType =
   | "sqlite"
@@ -24,6 +25,7 @@ export type PrismaInitOptions = {
   directory: string;
   datasourceUrl?: string;
   provider: DatabaseProviderType;
+  rootDir: string;
 };
 
 export async function isPrismaCLIInstalled(
@@ -71,8 +73,35 @@ export function checkIfPrismaSchemaExists(paths: string[]) {
   return false;
 }
 
+function moveEnvFileContent(dirA: string, dirB: string) {
+  const envFileA = join(dirA, ".env");
+  const envFileB = join(dirB, ".env");
+
+  try {
+    if (!existsSync(envFileB)) {
+      console.error(`Source .env file does not exist in directory: ${dirB}`);
+      return;
+    }
+
+    const envContentB = readFileSync(envFileB, "utf8");
+
+    if (existsSync(envFileA)) {
+      const envContentA = readFileSync(envFileA, "utf8");
+      const combinedContent = `${envContentA}\n${envContentB}`;
+      writeFileSync(envFileA, combinedContent, "utf8");
+    } else {
+      writeFileSync(envFileA, envContentB, "utf8");
+    }
+
+    console.log(`Successfully moved content from ${envFileB} to ${envFileA}`);
+  } catch (error) {
+    console.error(`Failed to move .env file content: ${error}`);
+  }
+}
+
 export async function initPrisma({
   directory,
+  rootDir,
   provider = "sqlite",
   datasourceUrl,
 }: PrismaInitOptions) {
@@ -93,6 +122,12 @@ export async function initPrisma({
     });
 
     log(initializePrisma?.split("Next steps")?.[0]);
+
+    try {
+      moveEnvFileContent(directory, rootDir);
+    } catch (error) {
+      console.log();
+    }
 
     return true;
   } catch (err) {

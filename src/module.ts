@@ -141,8 +141,6 @@ export default defineNuxtModule<PrismaExtendedModule>({
       ? resolveProject(options.prismaRoot) // Combines paths safely
       : PROJECT_PATH;
 
-    console.log({ PROJECT_PATH, LAYER_PATH });
-
     // Ensure Prisma CLI is installed if required
     if (options.installCLI) {
       const prismaInstalled = await isPrismaCLIInstalled(PROJECT_PATH);
@@ -203,6 +201,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     const prismaInitWorkflow = async () => {
       await initPrisma({
         directory: LAYER_PATH,
+        rootDir: PROJECT_PATH,
         provider: "sqlite",
       });
       await writeToSchema(`${LAYER_PATH}/prisma/schema.prisma`);

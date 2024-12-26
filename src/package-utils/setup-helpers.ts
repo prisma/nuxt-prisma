@@ -1,10 +1,5 @@
 import { execa } from "execa";
 import {
-  installingPrismaClientWithPM,
-  installingPrismaCLIWithPM,
-  type PackageManager,
-} from "./detect-pm";
-import {
   log,
   logError,
   logSuccess,
@@ -12,6 +7,7 @@ import {
 } from "./log-helpers";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "pathe";
+import { addDependency, addDevDependency } from "nypm";
 
 export type DatabaseProviderType =
   | "sqlite"
@@ -42,16 +38,12 @@ export async function isPrismaCLIInstalled(
   }
 }
 
-export async function installPrismaCLI(
-  directory: string,
-  packageManager?: PackageManager,
-) {
+export async function installPrismaCLI(directory: string) {
   try {
-    const installCmd = installingPrismaCLIWithPM(directory, packageManager);
-
-    await execa(installCmd.pm, installCmd.command, {
+    await addDevDependency("prisma", {
       cwd: directory,
     });
+
     logSuccess(PREDEFINED_LOG_MESSAGES.installPrismaCLI.yes);
   } catch (err) {
     logError(PREDEFINED_LOG_MESSAGES.installPrismaCLI.no);
@@ -226,18 +218,12 @@ export async function formatSchema(directory: string, schemaPath: string[]) {
 export async function installPrismaClient(
   directory: string,
   installPrismaClient: boolean = true,
-  packageManager?: PackageManager,
 ) {
   log(PREDEFINED_LOG_MESSAGES.generatePrismaClient.action);
 
   if (installPrismaClient) {
     try {
-      const installCmd = installingPrismaClientWithPM(
-        directory,
-        packageManager,
-      );
-
-      await execa(installCmd.pm, installCmd.command, {
+      await addDependency("@prisma/client", {
         cwd: directory,
       });
     } catch (error) {

@@ -25,7 +25,6 @@ import {
 } from "./package-utils/setup-helpers";
 import { log, PREDEFINED_LOG_MESSAGES } from "./package-utils/log-helpers";
 import type { Prisma } from "@prisma/client";
-import type { PackageManager } from "./package-utils/detect-pm";
 import { executeRequiredPrompts } from "./package-utils/prompts";
 
 // Module configuration interface
@@ -39,7 +38,6 @@ interface ModuleOptions extends Prisma.PrismaClientOptions {
   installStudio: boolean;
   autoSetupPrisma: boolean;
   skipPrompts: boolean;
-  packageManager?: PackageManager;
   prismaRoot?: string;
   prismaSchemaPath?: string;
 }
@@ -70,7 +68,6 @@ export default defineNuxtModule<PrismaExtendedModule>({
     installStudio: true,
     autoSetupPrisma: false,
     skipPrompts: false,
-    packageManager: undefined,
     prismaRoot: undefined,
     prismaSchemaPath: undefined,
   },
@@ -145,7 +142,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     if (options.installCLI) {
       const prismaInstalled = await isPrismaCLIInstalled(PROJECT_PATH);
       if (!prismaInstalled) {
-        await installPrismaCLI(PROJECT_PATH, options.packageManager);
+        await installPrismaCLI(PROJECT_PATH);
         await generatePrismaClient(
           PROJECT_PATH,
           PRISMA_SCHEMA_CMD,
@@ -245,11 +242,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     await writeClientInLib(LAYER_PATH);
 
     if (options.generateClient) {
-      await installPrismaClient(
-        PROJECT_PATH,
-        options.installClient,
-        options.packageManager,
-      );
+      await installPrismaClient(PROJECT_PATH, options.installClient);
       await generatePrismaClient(
         PROJECT_PATH,
         PRISMA_SCHEMA_CMD,

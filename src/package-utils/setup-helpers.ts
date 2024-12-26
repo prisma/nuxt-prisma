@@ -11,7 +11,7 @@ import {
   PREDEFINED_LOG_MESSAGES,
 } from "./log-helpers";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+import { join } from "pathe";
 
 export type DatabaseProviderType =
   | "sqlite"

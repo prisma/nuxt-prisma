@@ -23,7 +23,7 @@ export const PREDEFINED_LOG_MESSAGES = {
   },
   installPrismaCLI: {
     action: "Installing Prisma CLI...",
-    success: `Successfully installed "Prisma CLI.`,
+    success: `Successfully installed Prisma CLI.`,
     error: `Failed to install Prisma CLI.`,
   },
   checkIfPrismaSchemaExists: {

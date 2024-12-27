@@ -43,6 +43,8 @@
     "chalk": "^5.3.0",
     "defu": "^6.1.4",
     "execa": "^8.0.1",
+    "nypm": "^0.4.1",
+    "pathe": "^1.1.2",
     "prompts": "^2.4.2"
   },
   "devDependencies": {

@@ -7,12 +7,13 @@ import {
 } from "@nuxt/kit";
 import { fileURLToPath } from "url";
 import defu from "defu";
-import { executeRequiredPrompts } from "./package-utils/prompts";
+
+// Import utility functions
 import {
   checkIfMigrationsFolderExists,
   checkIfPrismaSchemaExists,
   formatSchema,
-  generateClient,
+  installPrismaClient,
   initPrisma,
   installPrismaCLI,
   installStudio,
@@ -20,10 +21,13 @@ import {
   runMigration,
   writeClientInLib,
   writeToSchema,
+  generatePrismaClient,
 } from "./package-utils/setup-helpers";
 import { log, PREDEFINED_LOG_MESSAGES } from "./package-utils/log-helpers";
 import type { Prisma } from "@prisma/client";
+import { executeRequiredPrompts } from "./package-utils/prompts";
 
+// Module configuration interface
 interface ModuleOptions extends Prisma.PrismaClientOptions {
   writeToSchema: boolean;
   formatSchema: boolean;
@@ -34,6 +38,8 @@ interface ModuleOptions extends Prisma.PrismaClientOptions {
   installStudio: boolean;
   autoSetupPrisma: boolean;
   skipPrompts: boolean;
+  prismaRoot?: string;
+  prismaSchemaPath?: string;
 }
 
 export type PrismaExtendedModule = ModuleOptions;
@@ -43,11 +49,12 @@ export default defineNuxtModule<PrismaExtendedModule>({
     name: "@prisma/nuxt",
     configKey: "prisma",
   },
-  // Default configuration options of the Nuxt module
+
+  // Default configuration options for the module
   defaults: {
     datasources: {
       db: {
-        url: process.env.DATABASE_URL,
+        url: process.env.DATABASE_URL, // Security: Ensure DATABASE_URL is correctly set and secure
       },
     },
     log: [],
@@ -61,6 +68,8 @@ export default defineNuxtModule<PrismaExtendedModule>({
     installStudio: true,
     autoSetupPrisma: false,
     skipPrompts: false,
+    prismaRoot: undefined,
+    prismaSchemaPath: undefined,
   },
 
   async setup(options, nuxt) {
@@ -68,26 +77,29 @@ export default defineNuxtModule<PrismaExtendedModule>({
     const { resolve: resolver } = createResolver(import.meta.url);
     const runtimeDir = fileURLToPath(new URL("./runtime", import.meta.url));
 
-    // Identifies which script is running: posinstall, dev or prod
-    const npm_lifecycle_event = process.env?.npm_lifecycle_event;
+    const npmLifecycleEvent = process.env?.npm_lifecycle_event;
+    const skipAllPrompts =
+      options.skipPrompts || npmLifecycleEvent === "dev:build";
 
-    const skip_all_prompts =
-      options.skipPrompts || npm_lifecycle_event === "dev:build";
+    const PRISMA_SCHEMA_CMD = options.prismaSchemaPath
+      ? ["--schema", options.prismaSchemaPath]
+      : [];
 
+    /**
+     * Helper function to prepare the module configuration
+     */
     const prepareModule = () => {
       // Enable server components for Nuxt
       nuxt.options.experimental.componentIslands ||= {};
       nuxt.options.experimental.componentIslands = true;
 
-      // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
-
+      // Add plugins and import directories
       addPlugin(resolver("./runtime/plugin"));
       addImportsDir(resolver(runtimeDir, "composables"));
-
-      // Auto-import from runtime/server/utils
       addServerImportsDir(resolver(runtimeDir, "utils"));
       // addServerImportsDir(resolver(runtimeDir, "server/utils"));
 
+      // Optimize dependencies for Vite
       nuxt.options.vite.optimizeDeps = defu(
         nuxt.options.vite.optimizeDeps || {},
         {
@@ -96,12 +108,13 @@ export default defineNuxtModule<PrismaExtendedModule>({
       );
     };
 
-    const force_skip_prisma_setup =
+    // Skip Prisma setup logic if flagged
+    const forceSkipPrismaSetup =
       import.meta.env?.SKIP_PRISMA_SETUP ??
       process.env?.SKIP_PRISMA_SETUP ??
       false;
 
-    // exposing module options to application runtime
+    // Expose module options to the runtime configuration
     nuxt.options.runtimeConfig.public.prisma = defu(
       nuxt.options.runtimeConfig.public.prisma || {},
       {
@@ -110,8 +123,8 @@ export default defineNuxtModule<PrismaExtendedModule>({
       },
     );
 
-    if (force_skip_prisma_setup || npm_lifecycle_event === "postinstall") {
-      if (npm_lifecycle_event !== "postinstall") {
+    if (forceSkipPrismaSetup || npmLifecycleEvent === "postinstall") {
+      if (npmLifecycleEvent !== "postinstall") {
         log(PREDEFINED_LOG_MESSAGES.PRISMA_SETUP_SKIPPED_WARNING);
       }
       prepareModule();
@@ -120,42 +133,48 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
     const PROJECT_PATH = resolveProject();
 
-    if (options.installCLI) {
-      // Check if Prisma CLI is installed.
-      const prismaInstalled = await isPrismaCLIInstalled(PROJECT_PATH);
+    // Concatenate PROJECT_PATH and prismaRoot manually
+    const LAYER_PATH = options.prismaRoot
+      ? resolveProject(options.prismaRoot) // Combines paths safely
+      : PROJECT_PATH;
 
-      // if Prisma CLI is installed skip the following step.
+    // Ensure Prisma CLI is installed if required
+    if (options.installCLI) {
+      const prismaInstalled = await isPrismaCLIInstalled(PROJECT_PATH);
       if (!prismaInstalled) {
         await installPrismaCLI(PROJECT_PATH);
+        await generatePrismaClient(
+          PROJECT_PATH,
+          PRISMA_SCHEMA_CMD,
+          options.log?.includes("error"),
+        );
       }
     }
 
-    // Check if Prisma Schema exists
+    // Check if Prisma schema exists
     const prismaSchemaExists = checkIfPrismaSchemaExists([
-      resolveProject("prisma", "schema.prisma"),
-      resolveProject("prisma", "schema"),
+      resolveProject(LAYER_PATH, "prisma", "schema.prisma"),
+      resolveProject(LAYER_PATH, "prisma", "schema"),
     ]);
 
+    /**
+     * Handle Prisma migrations workflow
+     */
     const prismaMigrateWorkflow = async () => {
-      // Check if Prisma migrations folder exists
-      const doesMigrationFolderExist = checkIfMigrationsFolderExists(
-        resolveProject("prisma", "migrations"),
+      const migrationFolderExists = checkIfMigrationsFolderExists(
+        resolveProject(LAYER_PATH, "prisma", "migrations"),
       );
 
-      if (doesMigrationFolderExist || !options.runMigration) {
-        // Skip migration as the migration folder exists
+      if (migrationFolderExists || !options.runMigration) {
         log(PREDEFINED_LOG_MESSAGES.skipMigrations);
         return;
       }
 
       const migrateAndFormatSchema = async () => {
-        await runMigration(PROJECT_PATH);
-
-        if (!options.formatSchema) {
-          return;
+        await runMigration(PROJECT_PATH, PRISMA_SCHEMA_CMD);
+        if (options.formatSchema) {
+          await formatSchema(PROJECT_PATH, PRISMA_SCHEMA_CMD);
         }
-
-        await formatSchema(PROJECT_PATH);
       };
 
       if (options.autoSetupPrisma && options.runMigration) {
@@ -164,36 +183,39 @@ export default defineNuxtModule<PrismaExtendedModule>({
       }
 
       const promptResult = await executeRequiredPrompts({
-        promptForMigrate: true && !skip_all_prompts,
-        promptForPrismaStudio: false && !skip_all_prompts,
+        promptForMigrate: true && !skipAllPrompts,
+        promptForPrismaStudio: false && !skipAllPrompts,
       });
 
       if (promptResult?.promptForPrismaMigrate && options.runMigration) {
         await migrateAndFormatSchema();
       }
-
-      return;
     };
 
+    /**
+     * Handle Prisma initialization workflow
+     */
     const prismaInitWorkflow = async () => {
       await initPrisma({
-        directory: PROJECT_PATH,
+        directory: LAYER_PATH,
+        rootDir: PROJECT_PATH,
         provider: "sqlite",
       });
-
-      // Add dummy models to the Prisma schema
-      await writeToSchema(resolveProject("prisma", "schema.prisma"));
-      await prismaMigrateWorkflow();
+      await writeToSchema(`${LAYER_PATH}/prisma/schema.prisma`);
     };
 
+    /**
+     * Handle Prisma Studio setup workflow
+     */
     const prismaStudioWorkflow = async () => {
-      if (!options.installStudio || npm_lifecycle_event !== "dev") {
+      if (!options.installStudio || npmLifecycleEvent !== "dev") {
         log(PREDEFINED_LOG_MESSAGES.skipInstallingPrismaStudio);
         return;
       }
 
       const installAndStartPrismaStudio = async () => {
-        await installStudio(PROJECT_PATH);
+        await installStudio(PROJECT_PATH, PRISMA_SCHEMA_CMD);
+
         nuxt.hooks.hook("devtools:customTabs", (tab) => {
           tab.push({
             name: "nuxt-prisma",
@@ -209,29 +231,26 @@ export default defineNuxtModule<PrismaExtendedModule>({
         });
       };
 
-      if (options.autoSetupPrisma) {
-        await installAndStartPrismaStudio();
-        return;
-      }
-
       await installAndStartPrismaStudio();
     };
 
+    // Execute workflows sequentially
     if (!prismaSchemaExists) {
       await prismaInitWorkflow();
-    } else {
-      await prismaMigrateWorkflow();
     }
-
-    await writeClientInLib(resolveProject("lib", "prisma.ts"));
+    await prismaMigrateWorkflow();
+    await writeClientInLib(LAYER_PATH);
 
     if (options.generateClient) {
-      await generateClient(PROJECT_PATH, options.installClient);
+      await installPrismaClient(PROJECT_PATH, options.installClient);
+      await generatePrismaClient(
+        PROJECT_PATH,
+        PRISMA_SCHEMA_CMD,
+        options.log?.includes("error"),
+      );
     }
 
     await prismaStudioWorkflow();
-
     prepareModule();
-    return;
   },
 });

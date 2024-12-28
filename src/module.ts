@@ -249,8 +249,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     if (options.generateClient) {
       if (options.installClient) {
         await ensureDependencyInstalled("@prisma/client", {
-          cwd: PROJECT_PATH,
-          dev: true
+          cwd: PROJECT_PATH
         });
       }
       await generatePrismaClient(

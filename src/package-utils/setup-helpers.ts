@@ -225,7 +225,6 @@ export async function installPrismaClient(
     try {
       await ensureDependencyInstalled("@prisma/client", {
         cwd: directory,
-        dev: false,
       });
     } catch (error) {
       logError(

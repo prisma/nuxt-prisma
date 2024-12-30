@@ -5,6 +5,7 @@ import {
   addImportsDir,
   addServerImportsDir,
 } from "@nuxt/kit";
+import { addCustomTab } from '@nuxt/devtools-kit'
 import { fileURLToPath } from "url";
 import defu from "defu";
 
@@ -14,7 +15,7 @@ import {
   checkIfPrismaSchemaExists,
   formatSchema,
   initPrisma,
-  installStudio,
+  startPrismaStudio,
   runMigration,
   writeClientInLib,
   writeToSchema,
@@ -193,25 +194,19 @@ export default defineNuxtModule<PrismaExtendedModule>({
         return;
       }
 
-      const installAndStartPrismaStudio = async () => {
-        await installStudio(PROJECT_PATH, PRISMA_SCHEMA_CMD);
+      await startPrismaStudio(PROJECT_PATH, PRISMA_SCHEMA_CMD);
 
-        nuxt.hooks.hook("devtools:customTabs", (tab) => {
-          tab.push({
-            name: "nuxt-prisma",
-            title: "Prisma Studio",
-            icon: "simple-icons:prisma",
-            category: "server",
-            view: {
-              type: "iframe",
-              src: "http://localhost:5555/",
-              persistent: true,
-            },
-          });
-        });
-      };
-
-      await installAndStartPrismaStudio();
+      addCustomTab({
+        name: "nuxt-prisma",
+        title: "Prisma Studio",
+        icon: "simple-icons:prisma",
+        category: "server",
+        view: {
+          type: "iframe",
+          src: "http://localhost:5555/",
+          persistent: true
+        }
+      });
     };
 
     // Execute workflows sequentially

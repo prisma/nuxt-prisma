@@ -208,7 +208,7 @@ export async function generatePrismaClient(
   }
 }
 
-export async function installStudio(
+export async function startPrismaStudio(
   directory: string,
   schemaLocation: string[],
 ) {

@@ -7,7 +7,7 @@ import {
 } from "./log-helpers";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "pathe";
-import { addDependency, addDevDependency } from "nypm";
+import { ensureDependencyInstalled, addDevDependency } from "nypm";
 
 export type DatabaseProviderType =
   | "sqlite"
@@ -223,8 +223,9 @@ export async function installPrismaClient(
 
   if (installPrismaClient) {
     try {
-      await addDependency("@prisma/client", {
+      await ensureDependencyInstalled("@prisma/client", {
         cwd: directory,
+        dev: false,
       });
     } catch (error) {
       logError(
@@ -232,6 +233,8 @@ export async function installPrismaClient(
           .prismaClientInstallationError,
       );
       // log(error);
+    } finally {
+      installPrismaClient = false;
     }
   }
 }

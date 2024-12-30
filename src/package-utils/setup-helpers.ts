@@ -192,6 +192,8 @@ export async function generatePrismaClient(
   prismaSchemaPath: string[],
   verboseLog: boolean = false,
 ) {
+  log(PREDEFINED_LOG_MESSAGES.generatePrismaClient.action);
+
   try {
     const { stdout: generateClient } = await execa(
       "prisma",
@@ -213,7 +215,7 @@ export async function startPrismaStudio(
   schemaLocation: string[],
 ) {
   try {
-    log(PREDEFINED_LOG_MESSAGES.installStudio.action);
+    log(PREDEFINED_LOG_MESSAGES.startPrismaStudio.action);
 
     const subprocess = execa(
       "prisma",
@@ -225,11 +227,11 @@ export async function startPrismaStudio(
 
     subprocess.unref();
 
-    logSuccess(PREDEFINED_LOG_MESSAGES.installStudio.success);
+    logSuccess(PREDEFINED_LOG_MESSAGES.startPrismaStudio.success);
 
     return true;
   } catch (err) {
-    logError(PREDEFINED_LOG_MESSAGES.installStudio.error);
+    logError(PREDEFINED_LOG_MESSAGES.startPrismaStudio.error);
     log(err);
     return false;
   }

@@ -47,14 +47,14 @@ export const PREDEFINED_LOG_MESSAGES = {
     action: "Generating Prisma client...\n",
     error: "Failed to generate Prisma Client.\n",
   },
-  installStudio: {
+  startPrismaStudio: {
     action: "Starting Prisma Studio...\n",
     success:
-      `Prisma Studio installed.` +
+      `Prisma Studio started.` +
       chalk.white(
         `\nAfter clicking ${chalk.bold("Get Started")} in Nuxt DevTools, click on the ${chalk.bold("three dots (︙)")} in the lower left-hand side to reveal additional tabs.\nLocate the Prisma logo to open Prisma Studio.`,
       ),
-    error: "Failed to install Prisma Studio.",
+    error: "Failed to start Prisma Studio.",
   },
   writeClientInLib: {
     found:

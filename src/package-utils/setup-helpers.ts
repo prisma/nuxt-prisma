@@ -1,4 +1,4 @@
-import { execa } from "execa";
+import { x } from 'tinyexec'
 import {
   log,
   logError,
@@ -85,9 +85,15 @@ export async function initPrisma({
   try {
     log(PREDEFINED_LOG_MESSAGES.initPrisma.action);
 
-    const { stdout: initializePrisma } = await execa("prisma", commandArgs, {
-      cwd: directory,
-    });
+    const { stdout: initializePrisma } = await x(
+      "prisma",
+      commandArgs,
+      {
+        nodeOptions: {
+          cwd: directory
+        }
+      }
+    );
 
     log(initializePrisma?.split("Next steps")?.[0]);
 
@@ -159,12 +165,14 @@ export async function runMigration(directory: string, schemaPath: string[]) {
   try {
     log(PREDEFINED_LOG_MESSAGES.runMigration.action);
 
-    await execa(
+    await x(
       "prisma",
       ["migrate", "dev", "--name", "init"].concat(schemaPath),
       {
-        cwd: directory,
-      },
+        nodeOptions: {
+          cwd: directory
+        }
+      }
     );
     logSuccess(PREDEFINED_LOG_MESSAGES.runMigration.success);
     return true;
@@ -179,9 +187,15 @@ export async function runMigration(directory: string, schemaPath: string[]) {
 export async function formatSchema(directory: string, schemaPath: string[]) {
   try {
     log(PREDEFINED_LOG_MESSAGES.formatSchema.action);
-    await execa("prisma", ["format"].concat(schemaPath), {
-      cwd: directory,
-    });
+    await x(
+      "prisma",
+      ["format"].concat(schemaPath),
+      {
+        nodeOptions: {
+          cwd: directory
+        }
+      }
+    );
   } catch {
     logError(PREDEFINED_LOG_MESSAGES.formatSchema.error);
   }
@@ -195,10 +209,14 @@ export async function generatePrismaClient(
   log(PREDEFINED_LOG_MESSAGES.generatePrismaClient.action);
 
   try {
-    const { stdout: generateClient } = await execa(
+    const { stdout: generateClient } = await x(
       "prisma",
       ["generate"].concat(prismaSchemaPath),
-      { cwd: directory },
+      {
+        nodeOptions: {
+          cwd: directory
+        }
+      }
     );
 
     log("\n" + generateClient.split("\n").slice(0, 4).join("\n") + "\n");
@@ -217,15 +235,17 @@ export async function startPrismaStudio(
   try {
     log(PREDEFINED_LOG_MESSAGES.startPrismaStudio.action);
 
-    const subprocess = execa(
+    const subprocess = x(
       "prisma",
       ["studio", "--browser", "none"].concat(schemaLocation),
       {
-        cwd: directory,
-      },
+        nodeOptions: {
+          cwd: directory
+        }
+      }
     );
 
-    subprocess.unref();
+    subprocess.process.unref();
 
     logSuccess(PREDEFINED_LOG_MESSAGES.startPrismaStudio.success);
 

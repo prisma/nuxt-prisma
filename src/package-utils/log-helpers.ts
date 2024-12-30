@@ -1,15 +1,15 @@
-import chalk from "chalk";
+import c from 'tinyrainbow'
 
 export function logSuccess(message: string) {
-  console.log(chalk.green(`✔ ${message}`));
+  console.log(c.green(`✔ ${message}`));
 }
 
 export function logWarning(message: string) {
-  console.warn(chalk.yellow(`⚠️ ${message}`));
+  console.warn(c.yellow(`⚠️ ${message}`));
 }
 
 export function logError(message: string) {
-  console.error(chalk.red(`✘ ${message}`));
+  console.error(c.red(`✘ ${message}`));
 }
 
 export function log(message: any) {
@@ -51,8 +51,8 @@ export const PREDEFINED_LOG_MESSAGES = {
     action: "Starting Prisma Studio...\n",
     success:
       `Prisma Studio started.` +
-      chalk.white(
-        `\nAfter clicking ${chalk.bold("Get Started")} in Nuxt DevTools, click on the ${chalk.bold("three dots (︙)")} in the lower left-hand side to reveal additional tabs.\nLocate the Prisma logo to open Prisma Studio.`,
+      c.white(
+        `\nAfter clicking ${c.bold("Get Started")} in Nuxt DevTools, click on the ${c.bold("three dots (︙)")} in the lower left-hand side to reveal additional tabs.\nLocate the Prisma logo to open Prisma Studio.`,
       ),
     error: "Failed to start Prisma Studio.",
   },
@@ -61,15 +61,15 @@ export const PREDEFINED_LOG_MESSAGES = {
       "Skipping the creation of a lib/prisma.ts file that would hold a global instance of the Prisma Client because the prisma.ts file already exists in the lib folder.",
     success: "Global instance of Prisma Client created in lib/prisma.ts.",
   },
-  PRISMA_SETUP_SKIPPED_WARNING: chalk.yellow(
-    `${chalk.bold("Warning")}: Nuxt Prisma Module setup skipped.\nThis may cause unexpected behavior.`,
+  PRISMA_SETUP_SKIPPED_WARNING: c.yellow(
+    `${c.bold("Warning")}: Nuxt Prisma Module setup skipped.\nThis may cause unexpected behavior.`,
   ),
   skipMigrations: `\nNot migrating the database.`,
   skipInstallingPrismaStudio: "Skipped installing Prisma Studio.",
   suggestions: {
     migrate:
-      chalk.yellow(chalk.bold("\nHint: ")) +
-      `You can manually run migrations by executing ${chalk.cyan.bold("npx prisma migrate dev")} or visit the ${chalk.blue.bold("Prisma Migrate")} docs for more info:\n${chalk.underline.blue("https://pris.ly/nuxt/migrate")}. ` +
-      `Or if you have pre-existing data on your database, you have to introspect it. Learn more in our docs:\n${chalk.underline.blue("https://pris.ly/nuxt/dbpull")}.\n`,
+      c.yellow(c.bold("\nHint: ")) +
+      `You can manually run migrations by executing ${c.cyan(c.bold("npx prisma migrate dev"))} or visit the ${c.blue(c.bold("Prisma Migrate"))} docs for more info:\n${c.underline(c.blue("https://pris.ly/nuxt/migrate"))}. ` +
+      `Or if you have pre-existing data on your database, you have to introspect it. Learn more in our docs:\n${c.underline(c.blue("https://pris.ly/nuxt/dbpull"))}.\n`,
   },
 };

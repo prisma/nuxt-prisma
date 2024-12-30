@@ -73,7 +73,7 @@ export async function initPrisma({
   provider = "sqlite",
   datasourceUrl,
 }: PrismaInitOptions) {
-  const commandArgs = ["prisma", "init", "--datasource-provider"];
+  const commandArgs = ["init", "--datasource-provider"];
 
   commandArgs.push(provider);
 
@@ -85,7 +85,7 @@ export async function initPrisma({
   try {
     log(PREDEFINED_LOG_MESSAGES.initPrisma.action);
 
-    const { stdout: initializePrisma } = await execa("npx", commandArgs, {
+    const { stdout: initializePrisma } = await execa("prisma", commandArgs, {
       cwd: directory,
     });
 
@@ -160,8 +160,8 @@ export async function runMigration(directory: string, schemaPath: string[]) {
     log(PREDEFINED_LOG_MESSAGES.runMigration.action);
 
     await execa(
-      "npx",
-      ["prisma", "migrate", "dev", "--name", "init"].concat(schemaPath),
+      "prisma",
+      ["migrate", "dev", "--name", "init"].concat(schemaPath),
       {
         cwd: directory,
       },
@@ -179,7 +179,7 @@ export async function runMigration(directory: string, schemaPath: string[]) {
 export async function formatSchema(directory: string, schemaPath: string[]) {
   try {
     log(PREDEFINED_LOG_MESSAGES.formatSchema.action);
-    await execa("npx", ["prisma", "format"].concat(schemaPath), {
+    await execa("prisma", ["format"].concat(schemaPath), {
       cwd: directory,
     });
   } catch {
@@ -194,8 +194,8 @@ export async function generatePrismaClient(
 ) {
   try {
     const { stdout: generateClient } = await execa(
-      "npx",
-      ["prisma", "generate"].concat(prismaSchemaPath),
+      "prisma",
+      ["generate"].concat(prismaSchemaPath),
       { cwd: directory },
     );
 
@@ -216,8 +216,8 @@ export async function startPrismaStudio(
     log(PREDEFINED_LOG_MESSAGES.installStudio.action);
 
     const subprocess = execa(
-      "npx",
-      ["prisma", "studio", "--browser", "none"].concat(schemaLocation),
+      "prisma",
+      ["studio", "--browser", "none"].concat(schemaLocation),
       {
         cwd: directory,
       },

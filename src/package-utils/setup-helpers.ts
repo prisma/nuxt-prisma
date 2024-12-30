@@ -232,8 +232,6 @@ export async function installPrismaClient(
           .prismaClientInstallationError,
       );
       // log(error);
-    } finally {
-      installPrismaClient = false;
     }
   }
 }

@@ -13,11 +13,8 @@ import {
   checkIfMigrationsFolderExists,
   checkIfPrismaSchemaExists,
   formatSchema,
-  installPrismaClient,
   initPrisma,
-  installPrismaCLI,
   installStudio,
-  isPrismaCLIInstalled,
   runMigration,
   writeClientInLib,
   writeToSchema,
@@ -32,8 +29,6 @@ interface ModuleOptions extends Prisma.PrismaClientOptions {
   writeToSchema: boolean;
   formatSchema: boolean;
   runMigration: boolean;
-  installClient: boolean;
-  installCLI: boolean;
   generateClient: boolean;
   installStudio: boolean;
   autoSetupPrisma: boolean;
@@ -62,8 +57,6 @@ export default defineNuxtModule<PrismaExtendedModule>({
     writeToSchema: true,
     formatSchema: true,
     runMigration: true,
-    installClient: true,
-    installCLI: true,
     generateClient: true,
     installStudio: true,
     autoSetupPrisma: false,
@@ -137,19 +130,6 @@ export default defineNuxtModule<PrismaExtendedModule>({
     const LAYER_PATH = options.prismaRoot
       ? resolveProject(options.prismaRoot) // Combines paths safely
       : PROJECT_PATH;
-
-    // Ensure Prisma CLI is installed if required
-    if (options.installCLI) {
-      const prismaInstalled = await isPrismaCLIInstalled(PROJECT_PATH);
-      if (!prismaInstalled) {
-        await installPrismaCLI(PROJECT_PATH);
-        await generatePrismaClient(
-          PROJECT_PATH,
-          PRISMA_SCHEMA_CMD,
-          options.log?.includes("error"),
-        );
-      }
-    }
 
     // Check if Prisma schema exists
     const prismaSchemaExists = checkIfPrismaSchemaExists([
@@ -242,7 +222,6 @@ export default defineNuxtModule<PrismaExtendedModule>({
     await writeClientInLib(LAYER_PATH);
 
     if (options.generateClient) {
-      await installPrismaClient(PROJECT_PATH, options.installClient);
       await generatePrismaClient(
         PROJECT_PATH,
         PRISMA_SCHEMA_CMD,

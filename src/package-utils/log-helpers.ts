@@ -17,15 +17,6 @@ export function log(message: any) {
 }
 
 export const PREDEFINED_LOG_MESSAGES = {
-  isPrismaCLIinstalled: {
-    yes: `Prisma CLI is already installed.`,
-    no: `Prisma CLI is not installed.`,
-  },
-  installPrismaCLI: {
-    action: "Installing Prisma CLI...",
-    yes: `Successfully installed "Prisma CLI.`,
-    no: `Failed to install Prisma CLI.`,
-  },
   checkIfPrismaSchemaExists: {
     yes: "Prisma schema file exists.",
     no: "Prisma schema file does not exist.",
@@ -54,8 +45,6 @@ export const PREDEFINED_LOG_MESSAGES = {
   },
   generatePrismaClient: {
     action: "Generating Prisma client...\n",
-    prismaClientInstallationError: "Failed to install Prisma Client.\n",
-    success: "Prisma Client successfully generated!",
     error: "Failed to generate Prisma Client.\n",
   },
   installStudio: {

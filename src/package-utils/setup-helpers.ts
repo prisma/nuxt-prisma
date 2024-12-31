@@ -29,7 +29,7 @@ export function checkIfPrismaSchemaExists(paths: string[]) {
     return true;
   }
 
-  consola.error(PREDEFINED_LOG_MESSAGES.checkIfPrismaSchemaExists.no);
+  consola.warn(PREDEFINED_LOG_MESSAGES.checkIfPrismaSchemaExists.no);
   return false;
 }
 
@@ -43,7 +43,7 @@ function moveEnvFileContent(dirA: string, dirB: string) {
 
   try {
     if (!existsSync(envFileB)) {
-      consola.error(`Source .env file does not exist in directory: ${dirB}`);
+      consola.warn(`Source .env file does not exist in directory: ${dirB}`);
       return;
     }
 
@@ -113,7 +113,7 @@ export function checkIfMigrationsFolderExists(path: string) {
     return true;
   }
 
-  consola.error(PREDEFINED_LOG_MESSAGES.checkIfMigrationsFolderExists.error);
+  consola.warn(PREDEFINED_LOG_MESSAGES.checkIfMigrationsFolderExists.error);
   return false;
 }
 

@@ -40,6 +40,7 @@ interface ModuleOptions extends Prisma.PrismaClientOptions {
   skipPrompts: boolean;
   prismaRoot?: string;
   prismaSchemaPath?: string;
+  noEngine?: boolean;
 }
 
 export type PrismaExtendedModule = ModuleOptions;
@@ -70,6 +71,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     skipPrompts: false,
     prismaRoot: undefined,
     prismaSchemaPath: undefined,
+    noEngine: false,
   },
 
   async setup(options, nuxt) {
@@ -84,6 +86,8 @@ export default defineNuxtModule<PrismaExtendedModule>({
     const PRISMA_SCHEMA_CMD = options.prismaSchemaPath
       ? ["--schema", options.prismaSchemaPath]
       : [];
+
+    const PRISMA_NO_ENGINE_CMD = options.noEngine ? ["--no-engine"] : [];
 
     /**
      * Helper function to prepare the module configuration
@@ -146,6 +150,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
         await generatePrismaClient(
           PROJECT_PATH,
           PRISMA_SCHEMA_CMD,
+          PRISMA_NO_ENGINE_CMD,
           options.log?.includes("error"),
         );
       }
@@ -246,6 +251,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
       await generatePrismaClient(
         PROJECT_PATH,
         PRISMA_SCHEMA_CMD,
+        PRISMA_NO_ENGINE_CMD,
         options.log?.includes("error"),
       );
     }

@@ -239,12 +239,13 @@ export async function installPrismaClient(
 export async function generatePrismaClient(
   directory: string,
   prismaSchemaPath: string[],
+  noEngine: string[],
   verboseLog: boolean = false,
 ) {
   try {
     const { stdout: generateClient } = await execa(
       "npx",
-      ["prisma", "generate"].concat(prismaSchemaPath),
+      ["prisma", "generate"].concat(prismaSchemaPath).concat(noEngine),
       { cwd: directory },
     );
 

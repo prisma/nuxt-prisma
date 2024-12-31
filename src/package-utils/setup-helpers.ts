@@ -1,12 +1,8 @@
 import { x } from 'tinyexec'
-import {
-  log,
-  logError,
-  logSuccess,
-  PREDEFINED_LOG_MESSAGES,
-} from "./log-helpers";
+import { PREDEFINED_LOG_MESSAGES } from "./log-helpers";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "pathe";
+import consola from 'consola';
 
 export type DatabaseProviderType =
   | "sqlite"
@@ -29,11 +25,11 @@ export function checkIfPrismaSchemaExists(paths: string[]) {
   }, false);
 
   if (exists) {
-    logSuccess(PREDEFINED_LOG_MESSAGES.checkIfPrismaSchemaExists.yes);
+    consola.success(PREDEFINED_LOG_MESSAGES.checkIfPrismaSchemaExists.yes);
     return true;
   }
 
-  logError(PREDEFINED_LOG_MESSAGES.checkIfPrismaSchemaExists.no);
+  consola.error(PREDEFINED_LOG_MESSAGES.checkIfPrismaSchemaExists.no);
   return false;
 }
 
@@ -47,7 +43,7 @@ function moveEnvFileContent(dirA: string, dirB: string) {
 
   try {
     if (!existsSync(envFileB)) {
-      console.error(`Source .env file does not exist in directory: ${dirB}`);
+      consola.error(`Source .env file does not exist in directory: ${dirB}`);
       return;
     }
 
@@ -61,9 +57,9 @@ function moveEnvFileContent(dirA: string, dirB: string) {
       writeFileSync(envFileA, envContentB, "utf8");
     }
 
-    console.log(`Successfully moved content from ${envFileB} to ${envFileA}`);
+    consola.success(`Successfully moved content from ${envFileB} to ${envFileA}`);
   } catch (error) {
-    console.error(`Failed to move .env file content: ${error}`);
+    consola.error(`Failed to move .env file content: ${error}`);
   }
 }
 
@@ -83,7 +79,7 @@ export async function initPrisma({
   }
 
   try {
-    log(PREDEFINED_LOG_MESSAGES.initPrisma.action);
+    consola.info(PREDEFINED_LOG_MESSAGES.initPrisma.action);
 
     const { stdout: initializePrisma } = await x(
       "prisma",
@@ -95,18 +91,17 @@ export async function initPrisma({
       }
     );
 
-    log(initializePrisma?.split("Next steps")?.[0]);
+    consola.info(initializePrisma?.split("Next steps")?.[0]);
 
     try {
       moveEnvFileContent(directory, rootDir);
     } catch (error) {
-      console.log();
+      consola.error(error);
     }
 
     return true;
   } catch (err) {
-    logError(PREDEFINED_LOG_MESSAGES.initPrisma.error);
-    log(err);
+    consola.error(PREDEFINED_LOG_MESSAGES.initPrisma.error, err);
 
     return false;
   }
@@ -114,11 +109,11 @@ export async function initPrisma({
 
 export function checkIfMigrationsFolderExists(path: string) {
   if (existsSync(path)) {
-    logSuccess(PREDEFINED_LOG_MESSAGES.checkIfMigrationsFolderExists.success);
+    consola.success(PREDEFINED_LOG_MESSAGES.checkIfMigrationsFolderExists.success);
     return true;
   }
 
-  logError(PREDEFINED_LOG_MESSAGES.checkIfMigrationsFolderExists.error);
+  consola.error(PREDEFINED_LOG_MESSAGES.checkIfMigrationsFolderExists.error);
   return false;
 }
 
@@ -129,7 +124,7 @@ export async function writeToSchema(prismaSchemaPath: string) {
     try {
       existingSchema = readFileSync(prismaSchemaPath, "utf-8");
     } catch {
-      logError(PREDEFINED_LOG_MESSAGES.writeToSchema.errorReadingFile);
+      consola.error(PREDEFINED_LOG_MESSAGES.writeToSchema.errorReadingFile);
       return false;
     }
 
@@ -157,13 +152,13 @@ model Post {
     const updatedSchema = `${existingSchema.trim()}\n\n${addModel}`;
     writeFileSync(prismaSchemaPath, updatedSchema);
   } catch {
-    logError(PREDEFINED_LOG_MESSAGES.writeToSchema.failedToWrite);
+    consola.error(PREDEFINED_LOG_MESSAGES.writeToSchema.failedToWrite);
   }
 }
 
 export async function runMigration(directory: string, schemaPath: string[]) {
   try {
-    log(PREDEFINED_LOG_MESSAGES.runMigration.action);
+    consola.info(PREDEFINED_LOG_MESSAGES.runMigration.action);
 
     await x(
       "prisma",
@@ -174,19 +169,17 @@ export async function runMigration(directory: string, schemaPath: string[]) {
         }
       }
     );
-    logSuccess(PREDEFINED_LOG_MESSAGES.runMigration.success);
+    consola.success(PREDEFINED_LOG_MESSAGES.runMigration.success);
     return true;
   } catch (err) {
-    logError(PREDEFINED_LOG_MESSAGES.runMigration.error);
-    log(err);
-    log(PREDEFINED_LOG_MESSAGES.suggestions.migrate);
+    consola.error(PREDEFINED_LOG_MESSAGES.runMigration.error, err)
     return false;
   }
 }
 
 export async function formatSchema(directory: string, schemaPath: string[]) {
   try {
-    log(PREDEFINED_LOG_MESSAGES.formatSchema.action);
+    consola.info(PREDEFINED_LOG_MESSAGES.formatSchema.action);
     await x(
       "prisma",
       ["format"].concat(schemaPath),
@@ -196,8 +189,9 @@ export async function formatSchema(directory: string, schemaPath: string[]) {
         }
       }
     );
+    consola.success(PREDEFINED_LOG_MESSAGES.formatSchema.success);
   } catch {
-    logError(PREDEFINED_LOG_MESSAGES.formatSchema.error);
+    consola.error(PREDEFINED_LOG_MESSAGES.formatSchema.error);
   }
 }
 
@@ -206,7 +200,7 @@ export async function generatePrismaClient(
   prismaSchemaPath: string[],
   verboseLog: boolean = false,
 ) {
-  log(PREDEFINED_LOG_MESSAGES.generatePrismaClient.action);
+  consola.info(PREDEFINED_LOG_MESSAGES.generatePrismaClient.action);
 
   try {
     const { stdout: generateClient } = await x(
@@ -219,11 +213,15 @@ export async function generatePrismaClient(
       }
     );
 
-    log("\n" + generateClient.split("\n").slice(0, 4).join("\n") + "\n");
+    generateClient?.split("\n\n").forEach((part, index) => {
+      if (index < 2) {
+        consola.success(index === 1 ? part.replace("✔ ", "") + "\n" : part);
+      }
+    });
   } catch (err) {
-    logError(PREDEFINED_LOG_MESSAGES.generatePrismaClient.error);
+    consola.error(PREDEFINED_LOG_MESSAGES.generatePrismaClient.error);
     if (verboseLog) {
-      log(err);
+      consola.error(err);
     }
   }
 }
@@ -233,7 +231,7 @@ export async function startPrismaStudio(
   schemaLocation: string[],
 ) {
   try {
-    log(PREDEFINED_LOG_MESSAGES.startPrismaStudio.action);
+    consola.info(PREDEFINED_LOG_MESSAGES.startPrismaStudio.action);
 
     const subprocess = x(
       "prisma",
@@ -247,12 +245,12 @@ export async function startPrismaStudio(
 
     subprocess.process.unref();
 
-    logSuccess(PREDEFINED_LOG_MESSAGES.startPrismaStudio.success);
+    consola.success(PREDEFINED_LOG_MESSAGES.startPrismaStudio.success);
+    consola.info(PREDEFINED_LOG_MESSAGES.startPrismaStudio.info);
 
     return true;
   } catch (err) {
-    logError(PREDEFINED_LOG_MESSAGES.startPrismaStudio.error);
-    log(err);
+    consola.error(PREDEFINED_LOG_MESSAGES.startPrismaStudio.error, err);
     return false;
   }
 }
@@ -285,15 +283,15 @@ if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma
       }
 
       if (existsSync(`${path}/lib/prisma.ts`)) {
-        log(PREDEFINED_LOG_MESSAGES.writeClientInLib.found);
+        consola.info(PREDEFINED_LOG_MESSAGES.writeClientInLib.found);
         return;
       }
 
       writeFileSync(`${path}/lib/prisma.ts`, prismaClient);
 
-      logSuccess(PREDEFINED_LOG_MESSAGES.writeClientInLib.success);
+      consola.success(PREDEFINED_LOG_MESSAGES.writeClientInLib.success);
     }
-  } catch (e: any) {
-    log(e);
+  } catch (err) {
+    consola.error(err);
   }
 }

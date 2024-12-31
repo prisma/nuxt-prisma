@@ -21,9 +21,10 @@ import {
   writeToSchema,
   generatePrismaClient,
 } from "./package-utils/setup-helpers";
-import { log, PREDEFINED_LOG_MESSAGES } from "./package-utils/log-helpers";
+import { PREDEFINED_LOG_MESSAGES } from "./package-utils/log-helpers";
 import type { Prisma } from "@prisma/client";
 import { executeRequiredPrompts } from "./package-utils/prompts";
+import consola from "consola";
 
 // Module configuration interface
 interface ModuleOptions extends Prisma.PrismaClientOptions {
@@ -119,7 +120,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
     if (forceSkipPrismaSetup || npmLifecycleEvent === "postinstall") {
       if (npmLifecycleEvent !== "postinstall") {
-        log(PREDEFINED_LOG_MESSAGES.PRISMA_SETUP_SKIPPED_WARNING);
+        consola.warn(PREDEFINED_LOG_MESSAGES.PRISMA_SETUP_SKIPPED_WARNING);
       }
       prepareModule();
       return;
@@ -147,7 +148,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
       );
 
       if (migrationFolderExists || !options.runMigration) {
-        log(PREDEFINED_LOG_MESSAGES.skipMigrations);
+        consola.info(PREDEFINED_LOG_MESSAGES.skipMigrations);
         return;
       }
 
@@ -164,8 +165,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
       }
 
       const promptResult = await executeRequiredPrompts({
-        promptForMigrate: true && !skipAllPrompts,
-        promptForPrismaStudio: false && !skipAllPrompts,
+        promptForMigrate: true && !skipAllPrompts
       });
 
       if (promptResult?.promptForPrismaMigrate && options.runMigration) {
@@ -190,7 +190,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
      */
     const prismaStudioWorkflow = async () => {
       if (!options.installStudio || npmLifecycleEvent !== "dev") {
-        log(PREDEFINED_LOG_MESSAGES.skipInstallingPrismaStudio);
+        consola.info(PREDEFINED_LOG_MESSAGES.skipInstallingPrismaStudio);
         return;
       }
 

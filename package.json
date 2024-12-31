@@ -43,7 +43,8 @@
     "consola": "^3.3.3",
     "defu": "^6.1.4",
     "pathe": "^1.1.2",
-    "tinyexec": "^0.3.2"
+    "tinyexec": "^0.3.2",
+    "tinyrainbow": "^1.2.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
@@ -66,7 +67,6 @@
     "prettier": "3.2.5",
     "prisma": "^6.1.0",
     "semantic-release": "^24.2.0",
-    "tinyrainbow": "^1.2.0",
     "vitest": "^1.2.2"
   },
   "config": {

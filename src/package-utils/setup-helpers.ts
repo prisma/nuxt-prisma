@@ -51,6 +51,11 @@ function moveEnvFileContent(dirA: string, dirB: string) {
 
     if (existsSync(envFileA)) {
       const envContentA = readFileSync(envFileA, "utf8");
+
+      if (envContentA.match(/^DATABASE_URL=.+$/gm)) {
+        return;
+      }
+
       const combinedContent = `${envContentA}\n${envContentB}`;
       writeFileSync(envFileA, combinedContent, "utf8");
     } else {
@@ -96,7 +101,7 @@ export async function initPrisma({
   consola.success(PREDEFINED_LOG_MESSAGES.initPrisma.success);
 
   try {
-    moveEnvFileContent(directory, rootDir);
+    moveEnvFileContent(rootDir, directory);
   } catch (error) {
     consola.error(error);
   }

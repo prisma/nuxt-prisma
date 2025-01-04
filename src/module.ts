@@ -5,7 +5,7 @@ import {
   addImportsDir,
   addServerImportsDir,
 } from "@nuxt/kit";
-import { addCustomTab } from '@nuxt/devtools-kit'
+import { addCustomTab } from "@nuxt/devtools-kit";
 import { fileURLToPath } from "url";
 import defu from "defu";
 
@@ -165,7 +165,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
       }
 
       const promptResult = await executeRequiredPrompts({
-        promptForMigrate: true && !skipAllPrompts
+        promptForMigrate: true && !skipAllPrompts,
       });
 
       if (promptResult?.promptForPrismaMigrate && options.runMigration) {
@@ -204,8 +204,8 @@ export default defineNuxtModule<PrismaExtendedModule>({
         view: {
           type: "iframe",
           src: "http://localhost:5555/",
-          persistent: true
-        }
+          persistent: true,
+        },
       });
     };
 

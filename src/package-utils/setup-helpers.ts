@@ -7,7 +7,6 @@ import {
 } from "./log-helpers";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "pathe";
-import { addDependency, addDevDependency } from "nypm";
 
 export type DatabaseProviderType =
   | "sqlite"
@@ -23,33 +22,6 @@ export type PrismaInitOptions = {
   provider: DatabaseProviderType;
   rootDir: string;
 };
-
-export async function isPrismaCLIInstalled(
-  directory: string,
-): Promise<boolean> {
-  try {
-    await execa("npx", ["prisma", "version"], { cwd: directory });
-    logSuccess(PREDEFINED_LOG_MESSAGES.isPrismaCLIinstalled.yes);
-    return true;
-  } catch (error) {
-    logError(PREDEFINED_LOG_MESSAGES.isPrismaCLIinstalled.no);
-    // log(error);
-    return false;
-  }
-}
-
-export async function installPrismaCLI(directory: string) {
-  try {
-    await addDevDependency("prisma", {
-      cwd: directory,
-    });
-
-    logSuccess(PREDEFINED_LOG_MESSAGES.installPrismaCLI.yes);
-  } catch (err) {
-    logError(PREDEFINED_LOG_MESSAGES.installPrismaCLI.no);
-    log(err);
-  }
-}
 
 export function checkIfPrismaSchemaExists(paths: string[]) {
   const exists = paths.reduce((prev, current) => {
@@ -212,27 +184,6 @@ export async function formatSchema(directory: string, schemaPath: string[]) {
     });
   } catch {
     logError(PREDEFINED_LOG_MESSAGES.formatSchema.error);
-  }
-}
-
-export async function installPrismaClient(
-  directory: string,
-  installPrismaClient: boolean = true,
-) {
-  log(PREDEFINED_LOG_MESSAGES.generatePrismaClient.action);
-
-  if (installPrismaClient) {
-    try {
-      await addDependency("@prisma/client", {
-        cwd: directory,
-      });
-    } catch (error) {
-      logError(
-        PREDEFINED_LOG_MESSAGES.generatePrismaClient
-          .prismaClientInstallationError,
-      );
-      // log(error);
-    }
   }
 }
 

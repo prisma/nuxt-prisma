@@ -13,11 +13,8 @@ import {
   checkIfMigrationsFolderExists,
   checkIfPrismaSchemaExists,
   formatSchema,
-  installPrismaClient,
   initPrisma,
-  installPrismaCLI,
   installStudio,
-  isPrismaCLIInstalled,
   runMigration,
   writeClientInLib,
   writeToSchema,
@@ -26,6 +23,7 @@ import {
 import { log, PREDEFINED_LOG_MESSAGES } from "./package-utils/log-helpers";
 import type { Prisma } from "@prisma/client";
 import { executeRequiredPrompts } from "./package-utils/prompts";
+import { ensureDependencyInstalled } from "nypm";
 
 // Module configuration interface
 interface ModuleOptions extends Prisma.PrismaClientOptions {
@@ -140,15 +138,22 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
     // Ensure Prisma CLI is installed if required
     if (options.installCLI) {
-      const prismaInstalled = await isPrismaCLIInstalled(PROJECT_PATH);
-      if (!prismaInstalled) {
-        await installPrismaCLI(PROJECT_PATH);
-        await generatePrismaClient(
-          PROJECT_PATH,
-          PRISMA_SCHEMA_CMD,
-          options.log?.includes("error"),
-        );
+      log(PREDEFINED_LOG_MESSAGES.installPrismaCLI.action);
+
+      try {
+        await ensureDependencyInstalled("prisma", {
+          cwd: PROJECT_PATH,
+          dev: true
+        });
+        log(PREDEFINED_LOG_MESSAGES.installPrismaCLI.success);
+      } catch (error) {
+        log(PREDEFINED_LOG_MESSAGES.installPrismaCLI.error);
       }
+      await generatePrismaClient(
+        PROJECT_PATH,
+        PRISMA_SCHEMA_CMD,
+        options.log?.includes("error"),
+      );
     }
 
     // Check if Prisma schema exists
@@ -242,7 +247,11 @@ export default defineNuxtModule<PrismaExtendedModule>({
     await writeClientInLib(LAYER_PATH);
 
     if (options.generateClient) {
-      await installPrismaClient(PROJECT_PATH, options.installClient);
+      if (options.installClient) {
+        await ensureDependencyInstalled("@prisma/client", {
+          cwd: PROJECT_PATH
+        });
+      }
       await generatePrismaClient(
         PROJECT_PATH,
         PRISMA_SCHEMA_CMD,

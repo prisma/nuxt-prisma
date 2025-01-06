@@ -23,17 +23,15 @@ export type PrismaInitOptions = {
   rootDir: string;
 };
 
-export function checkIfPrismaSchemaExists(paths: string[]) {
-  const exists = paths.reduce((prev, current) => {
-    return existsSync(current) || prev;
-  }, false);
-
-  if (exists) {
-    logSuccess(PREDEFINED_LOG_MESSAGES.checkIfPrismaSchemaExists.yes);
-    return true;
+export function getPrismaSchema(paths: string[]): string | false {
+  for (const path of paths) {
+    if (existsSync(path)) {
+      logSuccess(PREDEFINED_LOG_MESSAGES.getPrismaSchema.yes);
+      return path;
+    }
   }
 
-  logError(PREDEFINED_LOG_MESSAGES.checkIfPrismaSchemaExists.no);
+  logError(PREDEFINED_LOG_MESSAGES.getPrismaSchema.no);
   return false;
 }
 
@@ -106,13 +104,15 @@ export async function initPrisma({
   }
 }
 
-export function checkIfMigrationsFolderExists(path: string) {
-  if (existsSync(path)) {
-    logSuccess(PREDEFINED_LOG_MESSAGES.checkIfMigrationsFolderExists.success);
-    return true;
+export function getMigrationsFolder(paths: string[]): string | false {
+  for (const path of paths) {
+    if (existsSync(path)) {
+      logSuccess(PREDEFINED_LOG_MESSAGES.getMigrationsFolder.success);
+      return path;
+    }
   }
 
-  logError(PREDEFINED_LOG_MESSAGES.checkIfMigrationsFolderExists.error);
+  logError(PREDEFINED_LOG_MESSAGES.getMigrationsFolder.error);
   return false;
 }
 

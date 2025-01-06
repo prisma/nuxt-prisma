@@ -26,7 +26,7 @@ export const PREDEFINED_LOG_MESSAGES = {
     success: `Successfully installed Prisma CLI.`,
     error: `Failed to install Prisma CLI.`,
   },
-  checkIfPrismaSchemaExists: {
+  getPrismaSchema: {
     yes: "Prisma schema file exists.",
     no: "Prisma schema file does not exist.",
   },
@@ -34,7 +34,7 @@ export const PREDEFINED_LOG_MESSAGES = {
     action: "Initializing Prisma project...\n",
     error: "Failed to initialize Prisma project.",
   },
-  checkIfMigrationsFolderExists: {
+  getMigrationsFolder: {
     success: "Database migrations folder exists.",
     error: "Database migrations folder does not exist.",
   },

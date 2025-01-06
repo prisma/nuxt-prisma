@@ -141,7 +141,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
     const PRISMA_SCHEMA_CMD = [
       "--schema",
-      options.prismaSchemaPath || resolvedPrismaSchema,
+      options.prismaSchemaPath || resolvedPrismaSchema || "",
     ];
 
     // Ensure Prisma CLI is installed if required
@@ -151,7 +151,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
       try {
         await ensureDependencyInstalled("prisma", {
           cwd: PROJECT_PATH,
-          dev: true
+          dev: true,
         });
         log(PREDEFINED_LOG_MESSAGES.installPrismaCLI.success);
       } catch (error) {
@@ -209,7 +209,10 @@ export default defineNuxtModule<PrismaExtendedModule>({
         rootDir: PROJECT_PATH,
         provider: "sqlite",
       });
-      await writeToSchema(resolvedPrismaSchema);
+
+      if (resolvedPrismaSchema) {
+        await writeToSchema(resolvedPrismaSchema);
+      }
     };
 
     /**
@@ -252,7 +255,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     if (options.generateClient) {
       if (options.installClient) {
         await ensureDependencyInstalled("@prisma/client", {
-          cwd: PROJECT_PATH
+          cwd: PROJECT_PATH,
         });
       }
       await generatePrismaClient(

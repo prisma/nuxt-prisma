@@ -1,0 +1,44 @@
+name: 🐛 Bug Report
+description: Report an issue that requires resolution
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to submit a bug report. Your feedback is invaluable in improving the Prisma Nuxt module.
+
+        If you require assistance or support with the Prisma Nuxt module and are not reporting a bug, please join our [Discord server](https://pris.ly/discord). You can ask questions in the [`#help-and-questions`](https://discord.com/channels/937751382725886062/1111711591575064648) forum.
+
+        Ensure you are using the [latest version](https://github.com/prisma/nuxt-prisma/releases/latest) of the Prisma Nuxt module, as the issue you are encountering may have already been resolved.
+
+        Please provide as much detailed information as possible to help us address the issue effectively.
+  - type: input
+    attributes:
+      label: Environment Information
+      description: Please provide your environment details. You can use the `npx nuxi info` command to gather this information.
+      placeholder: Enter your environment information here
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to Reproduce
+      description: Provide a detailed description of the steps to reproduce the issue, including any relevant code snippets.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Reproduction Link
+      description: Optionally, provide a link to a reproduction of the issue on platforms like StackBlitz, CodeSandbox, etc.
+      placeholder: Enter the reproduction link here
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: Describe the expected behavior in detail. Text descriptions are preferred over screenshots.
+  - type: textarea
+    attributes:
+      label: Actual Behavior
+      description: Describe the actual behavior observed. Text descriptions are preferred over screenshots.
+  - type: textarea
+    attributes:
+      label: Additional Information
+      description: Include any other relevant information that may assist in resolving the issue.

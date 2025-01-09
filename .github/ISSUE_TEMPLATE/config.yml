@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 Discussions & Questions
+    url: https://github.com/prisma/prisma-nuxt/discussions
+    about: Please use discussions for any questions or assistance you may need.

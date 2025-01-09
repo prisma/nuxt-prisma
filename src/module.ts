@@ -10,8 +10,8 @@ import defu from "defu";
 
 // Import utility functions
 import {
-  checkIfMigrationsFolderExists,
-  checkIfPrismaSchemaExists,
+  getMigrationsFolder,
+  getPrismaSchema,
   formatSchema,
   initPrisma,
   installStudio,
@@ -79,10 +79,6 @@ export default defineNuxtModule<PrismaExtendedModule>({
     const skipAllPrompts =
       options.skipPrompts || npmLifecycleEvent === "dev:build";
 
-    const PRISMA_SCHEMA_CMD = options.prismaSchemaPath
-      ? ["--schema", options.prismaSchemaPath]
-      : [];
-
     /**
      * Helper function to prepare the module configuration
      */
@@ -136,6 +132,18 @@ export default defineNuxtModule<PrismaExtendedModule>({
       ? resolveProject(options.prismaRoot) // Combines paths safely
       : PROJECT_PATH;
 
+    // Check if the Prisma schema exists
+    const resolvedPrismaSchema = getPrismaSchema([
+      resolveProject(LAYER_PATH, "schema.prisma"),
+      resolveProject(LAYER_PATH, "prisma", "schema.prisma"),
+      resolveProject(LAYER_PATH, "prisma", "schema"),
+    ]);
+
+    const PRISMA_SCHEMA_CMD = [
+      "--schema",
+      options.prismaSchemaPath || resolvedPrismaSchema || "",
+    ];
+
     // Ensure Prisma CLI is installed if required
     if (options.installCLI) {
       log(PREDEFINED_LOG_MESSAGES.installPrismaCLI.action);
@@ -143,7 +151,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
       try {
         await ensureDependencyInstalled("prisma", {
           cwd: PROJECT_PATH,
-          dev: true
+          dev: true,
         });
         log(PREDEFINED_LOG_MESSAGES.installPrismaCLI.success);
       } catch (error) {
@@ -156,21 +164,16 @@ export default defineNuxtModule<PrismaExtendedModule>({
       );
     }
 
-    // Check if Prisma schema exists
-    const prismaSchemaExists = checkIfPrismaSchemaExists([
-      resolveProject(LAYER_PATH, "prisma", "schema.prisma"),
-      resolveProject(LAYER_PATH, "prisma", "schema"),
-    ]);
-
     /**
      * Handle Prisma migrations workflow
      */
     const prismaMigrateWorkflow = async () => {
-      const migrationFolderExists = checkIfMigrationsFolderExists(
+      const migrationFolder = getMigrationsFolder([
+        resolveProject(LAYER_PATH, "migrations"),
         resolveProject(LAYER_PATH, "prisma", "migrations"),
-      );
+      ]);
 
-      if (migrationFolderExists || !options.runMigration) {
+      if (migrationFolder || !options.runMigration) {
         log(PREDEFINED_LOG_MESSAGES.skipMigrations);
         return;
       }
@@ -206,7 +209,10 @@ export default defineNuxtModule<PrismaExtendedModule>({
         rootDir: PROJECT_PATH,
         provider: "sqlite",
       });
-      await writeToSchema(`${LAYER_PATH}/prisma/schema.prisma`);
+
+      if (resolvedPrismaSchema) {
+        await writeToSchema(resolvedPrismaSchema);
+      }
     };
 
     /**
@@ -240,7 +246,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     };
 
     // Execute workflows sequentially
-    if (!prismaSchemaExists) {
+    if (!resolvedPrismaSchema) {
       await prismaInitWorkflow();
     }
     await prismaMigrateWorkflow();
@@ -249,7 +255,7 @@ export default defineNuxtModule<PrismaExtendedModule>({
     if (options.generateClient) {
       if (options.installClient) {
         await ensureDependencyInstalled("@prisma/client", {
-          cwd: PROJECT_PATH
+          cwd: PROJECT_PATH,
         });
       }
       await generatePrismaClient(

@@ -4,6 +4,7 @@ import {
   createResolver,
   addImportsDir,
   addServerImportsDir,
+  tryResolveModule
 } from "@nuxt/kit";
 import { fileURLToPath } from "url";
 import defu from "defu";
@@ -138,16 +139,17 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
     // Ensure Prisma CLI is installed if required
     if (options.installCLI) {
-      log(PREDEFINED_LOG_MESSAGES.installPrismaCLI.action);
+      const hasPrismaDependency = !!(await tryResolveModule('prisma', PROJECT_PATH));
 
-      try {
-        await ensureDependencyInstalled("prisma", {
-          cwd: PROJECT_PATH,
-          dev: true
-        });
-        log(PREDEFINED_LOG_MESSAGES.installPrismaCLI.success);
-      } catch (error) {
-        log(PREDEFINED_LOG_MESSAGES.installPrismaCLI.error);
+      if (!hasPrismaDependency) {
+        log(PREDEFINED_LOG_MESSAGES.installPrismaCLI.action);
+
+        try {
+          await ensureDependencyInstalled("prisma", { cwd: PROJECT_PATH, dev: true });
+          log(PREDEFINED_LOG_MESSAGES.installPrismaCLI.success);
+        } catch (error) {
+          log(PREDEFINED_LOG_MESSAGES.installPrismaCLI.error);
+        }
       }
       await generatePrismaClient(
         PROJECT_PATH,
@@ -248,9 +250,13 @@ export default defineNuxtModule<PrismaExtendedModule>({
 
     if (options.generateClient) {
       if (options.installClient) {
-        await ensureDependencyInstalled("@prisma/client", {
-          cwd: PROJECT_PATH
-        });
+        const hasPrismaClientDependency = !!(await tryResolveModule("@prisma/client", PROJECT_PATH));
+
+        if (!hasPrismaClientDependency) {
+          await ensureDependencyInstalled("@prisma/client", {
+            cwd: PROJECT_PATH
+          });
+        }
       }
       await generatePrismaClient(
         PROJECT_PATH,

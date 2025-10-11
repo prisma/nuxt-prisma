@@ -125,10 +125,17 @@ export async function writeToSchema(prismaSchemaPath: string) {
   try {
     let existingSchema = "";
 
+    // Check if schema file exists before trying to read it
+    if (!existsSync(prismaSchemaPath)) {
+      consola.warn(`Schema file does not exist at: ${prismaSchemaPath}`);
+      return false;
+    }
+
     try {
       existingSchema = readFileSync(prismaSchemaPath, "utf-8");
-    } catch {
+    } catch (error) {
       consola.error(PREDEFINED_LOG_MESSAGES.writeToSchema.errorReadingFile);
+      consola.error(`Error details: ${error}`);
       return false;
     }
 
@@ -223,11 +230,14 @@ export async function generatePrismaClient(
   if (exitCode !== 0) {
     consola.error(PREDEFINED_LOG_MESSAGES.generatePrismaClient.error);
 
-    if (verboseLog) {
-      consola.error(stderr);
+    if (verboseLog || stderr) {
+      consola.error(`Generation failed with exit code ${exitCode}`);
+      consola.error(`Error output: ${stderr}`);
     }
 
-    return;
+    throw new Error(
+      `Prisma client generation failed with exit code ${exitCode}`,
+    );
   }
 
   consola.success(PREDEFINED_LOG_MESSAGES.generatePrismaClient.success);

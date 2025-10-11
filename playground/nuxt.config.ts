@@ -1,12 +1,12 @@
 export default defineNuxtConfig({
   modules: ["../src/module"],
-  extends: ["./database"],
+  compatibilityDate: "2025-10-11",
   prisma: {
     prismaRoot: "./database",
     prismaSchemaPath: "./database/prisma/schema.prisma",
   },
-  experimental: {
-    componentIslands: true,
-  },
   devtools: { enabled: true },
+  future: {
+    compatibilityVersion: 4,
+  },
 });

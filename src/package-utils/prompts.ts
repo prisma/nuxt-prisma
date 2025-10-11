@@ -1,11 +1,11 @@
-import { consola, PromptOptions } from "consola";
+import { consola, type PromptOptions } from "consola";
 
 type RequiredPromptTypes = {
   promptForMigrate?: boolean;
 };
 
 enum RequiredPromptNames {
-  PROMPT_MIGRATE = "promptForPrismaMigrate"
+  PROMPT_MIGRATE = "promptForPrismaMigrate",
 }
 
 type RequiredPromptAnswers = {
@@ -19,7 +19,7 @@ interface CustomPromptOptions {
 }
 
 export async function executeRequiredPrompts({
-  promptForMigrate = true
+  promptForMigrate = true,
 }: RequiredPromptTypes): Promise<RequiredPromptAnswers | null> {
   const options: CustomPromptOptions[] = [];
 
@@ -28,9 +28,9 @@ export async function executeRequiredPrompts({
       message: "Do you want to migrate database changes to your database?",
       options: {
         type: "confirm",
-        initial: true
+        initial: true,
       },
-      key: RequiredPromptNames.PROMPT_MIGRATE
+      key: RequiredPromptNames.PROMPT_MIGRATE,
     });
   }
 
@@ -40,7 +40,7 @@ export async function executeRequiredPrompts({
 
   try {
     const answers: RequiredPromptAnswers = {
-      [RequiredPromptNames.PROMPT_MIGRATE]: false
+      [RequiredPromptNames.PROMPT_MIGRATE]: false,
     };
 
     for (const { message, options: promptOptions, key } of options) {

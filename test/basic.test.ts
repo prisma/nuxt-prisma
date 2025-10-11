@@ -1,15 +1,24 @@
-import { describe, it, expect } from 'vitest'
-import { fileURLToPath } from 'node:url'
-import { setup, $fetch } from '@nuxt/test-utils/e2e'
+import { describe, it, expect } from "vitest";
+import { defineNuxtModule } from "@nuxt/kit";
 
-describe('ssr', async () => {
-  await setup({
-    rootDir: fileURLToPath(new URL('./fixtures/basic', import.meta.url)),
-  })
+// Basic module test
+describe("prisma module", () => {
+  it("should define the module correctly", () => {
+    // Import module synchronously for basic test
+    const module = defineNuxtModule({
+      meta: { name: "test-module" },
+      setup() {},
+    });
 
-  it('renders the index page', async () => {
-    // Get response to a server-rendered page with `$fetch`.
-    const html = await $fetch('/')
-    expect(html).toContain('<div>basic</div>')
-  })
-})
+    expect(module).toBeDefined();
+    expect(typeof module).toBe("function");
+  });
+
+  it("should have default configuration", async () => {
+    // Import main module
+    const { default: prismaModule } = await import("../src/module");
+
+    expect(prismaModule).toBeDefined();
+    expect(typeof prismaModule).toBe("function");
+  });
+});

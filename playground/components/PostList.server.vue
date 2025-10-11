@@ -1,11 +1,22 @@
 <script lang="ts" setup>
-const prisma = usePrismaClient();
-const post = await prisma.post.findFirst();
+let user = null;
+let error = null;
+
+try {
+  const prisma = usePrismaClient();
+  user = await prisma.user.findFirst();
+} catch (e) {
+  error = e;
+  console.error("Error fetching user:", e);
+}
 </script>
 
 <template>
   <div>
     <div>Posts</div>
-    <p>{{ post?.title ?? "There is no post." }}</p>
+    <p v-if="error">Error loading user data</p>
+    <p v-else>
+      {{ user?.email ?? "There is no user." }}
+    </p>
   </div>
 </template>

@@ -19,6 +19,10 @@ With this module, you can easily integrate Prisma ORM in your Nuxt app.
    ```bash
    npm install @prisma/nuxt
    ```
+   or run this to automatically inject `@prisma/nuxt` and skip step #2
+   ```bash
+   npx nuxi module add @prisma/nuxt 
+   ```
 
 2. Add `@prisma/nuxt` to the `modules` section of `nuxt.config.ts`
 

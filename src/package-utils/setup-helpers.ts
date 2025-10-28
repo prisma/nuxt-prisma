@@ -263,7 +263,21 @@ export async function startPrismaStudio(
 }
 
 export async function writeClientInLib(path: string) {
-  const existingContent = existsSync(`${path}/lib/prisma.ts`);
+/**
+    encapsulate database logic inside prisma/ by including lib/prisma.ts to be used later
+    inside prisma/seed.ts as defaults for prisma cli becasue change prismaRoot & prismaSchemaPath
+    conflict with npx prisma --schema defaults
+
+    encapsulated dir shape:
+    prisma/
+    ├── lib/                # (folder for Prisma client helper / singleton)
+    ├── migrations/         # (Prisma migration history)
+    ├── dev.db              # SQLite database file
+    ├── schema.prisma       # Prisma schema definition
+    └── seed.ts             # Database seeding script
+*/
+  const libDir = 'prisma/lib'
+  const existingContent = existsSync(`${path}/${libDir}/prisma.ts`);
 
   try {
     if (!existingContent) {
@@ -285,16 +299,16 @@ export default prisma
 if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma
 `;
 
-      if (!existsSync(`${path}/lib`)) {
-        mkdirSync(`${path}/lib`);
+      if (!existsSync(`${path}/${libDir}`)) {
+        mkdirSync(`${path}/${libDir}`);
       }
 
-      if (existsSync(`${path}/lib/prisma.ts`)) {
+      if (existsSync(`${path}/${libDir}/prisma.ts`)) {
         consola.info(PREDEFINED_LOG_MESSAGES.writeClientInLib.found);
         return;
       }
 
-      writeFileSync(`${path}/lib/prisma.ts`, prismaClient);
+      writeFileSync(`${path}/${libDir}/prisma.ts`, prismaClient);
 
       consola.success(PREDEFINED_LOG_MESSAGES.writeClientInLib.success);
     }

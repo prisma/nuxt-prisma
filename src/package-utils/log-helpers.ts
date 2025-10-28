@@ -10,6 +10,12 @@ export const PREDEFINED_LOG_MESSAGES = {
     success: "Initialized the Prisma project.",
     error: "Failed to initialize Prisma project.",
   },
+  setupPostgresDatabase: {
+    action: "Setting up PostgreSQL database with create-db...",
+    success: "PostgreSQL database created successfully!",
+    fallback: "Falling back to Docker setup...",
+    error: "Failed to setup PostgreSQL database.",
+  },
   checkIfMigrationsFolderExists: {
     success: "Database migrations folder exists.",
     error: "Database migrations folder does not exist.",

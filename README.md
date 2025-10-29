@@ -1,20 +1,29 @@
-# Nuxt Prisma
+# @prisma/nuxt - Rust-Free Edition
 
-[![npm version][npm-version-src]][npm-version-href] [![npm downloads][npm-downloads-src]][npm-downloads-href] [![License][license-src]][license-href] [![Nuxt][nuxt-src]][nuxt-href]
+A modern Nuxt module for Prisma ORM that focuses on PostgreSQL database generation using the latest Rust-free Prisma features.
 
-Are you a Nuxt developer? Or are you familiar with Prisma ORM and want to use it easily with Nuxt? Then this module is for you.
+## 🚀 Features
 
-With this module, you can easily integrate Prisma ORM in your Nuxt app.
+- **Rust-Free Prisma Engine**: Uses the latest Prisma client without Rust binaries
+- **Driver Adapters**: Support for PostgreSQL, Neon, PlanetScale, and more
+- **PostgreSQL Focus**: Optimized for PostgreSQL development workflows
+- **create-db Integration**: Automatic PostgreSQL setup using `npx create-db`
+- **Docker Fallback**: Falls back to Docker if `create-db` is not available
+- **Nuxt DevTools**: Integrated Prisma Studio in Nuxt DevTools
+- **TypeScript Support**: Full TypeScript support with auto-generated types
+- **Modern Architecture**: Built with Nuxt 3+ and latest Prisma features
 
-## Features
+## 📦 Installation
 
-- Seamlessly set up Prisma CLI, Prisma schema, Prisma Migrate, and Prisma Client
-- Easily access Prisma Studio within Nuxt DevTools
-- Auto-imported `usePrismaClient()` composable for your Vue files
+```bash
+# Using npm
+npm install @prisma/nuxt
 
-## Quick setup
+# Using yarn
+yarn add @prisma/nuxt
 
-1. Add `@prisma/nuxt` dependency to your project
+# Using pnpm
+pnpm add @prisma/nuxt
 
    ```bash
    npm install @prisma/nuxt
@@ -24,38 +33,292 @@ With this module, you can easily integrate Prisma ORM in your Nuxt app.
    npx nuxi module add @prisma/nuxt 
    ```
 
-2. Add `@prisma/nuxt` to the `modules` section of `nuxt.config.ts`
+## 🛠️ Setup
 
-   ```ts
-   export default defineNuxtConfig({
-     modules: ["@prisma/nuxt"],
-   });
-   ```
+Add the module to your `nuxt.config.ts`:
 
-3. Start the development server:
+```typescript
+export default defineNuxtConfig({
+  modules: ['@prisma/nuxt'],
+  
+  prisma: {
+    database: {
+      provider: 'postgresql',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'postgres',
+      database: 'my_app',
+    },
+    prisma: {
+      schemaPath: './prisma/schema.prisma',
+      output: './generated/prisma',
+      engineType: 'client',
+      useDriverAdapter: true,
+      driverAdapter: 'pg',
+    },
+    devtools: {
+      enableStudio: true,
+      studioPort: 5555,
+    },
+    setup: {
+      autoSetup: false,
+      skipPrompts: false,
+      generateClient: true,
+      runMigration: true,
+      formatSchema: true,
+    },
+    runtime: {
+      log: ['query', 'info', 'warn', 'error'],
+      errorFormat: 'pretty',
+    },
+  },
+})
+```
 
-   ```bash
-   npm run dev
-   ```
+## 🔧 Configuration Options
 
-   Starting the development server will:
+### Database Configuration
 
-   1. Automatically install the [Prisma CLI](https://www.prisma.io/docs/orm/reference/prisma-cli-reference)
-   2. Initialize a Prisma project with a SQLite database
-   3. Create an User and Post example model in the Prisma Schema
-   4. Prompt you to run a migration to create database tables with [Prisma Migrate](https://www.prisma.io/docs/orm/prisma-migrate/understanding-prisma-migrate/overview)
-   5. Install and generate a [Prisma Client](https://www.prisma.io/docs/orm/reference/prisma-client-reference)
-   6. Prompt you to start the [Prisma Studio](https://www.prisma.io/docs/orm/tools/prisma-studio)
+```typescript
+database: {
+  provider: 'postgresql' | 'mysql' | 'sqlite' | 'sqlserver' | 'mongodb' | 'cockroachdb',
+  host?: string,
+  port?: number,
+  username?: string,
+  password?: string,
+  database?: string,
+  url?: string, // Direct connection string
+}
+```
 
-To learn more about how to use the module, visit our [documentation](https://pris.ly/prisma-nuxt)
+### Prisma Configuration
 
-<!-- Badges -->
+```typescript
+prisma: {
+  schemaPath?: string,        // Path to schema file
+  output?: string,           // Output directory for generated client
+  engineType?: 'client' | 'library',
+  useDriverAdapter?: boolean,
+  driverAdapter?: 'pg' | 'better-sqlite3' | 'd1' | 'mariadb' | 'planetscale' | 'mssql' | 'neon',
+}
+```
 
-[npm-version-src]: https://img.shields.io/npm/v/@prisma/nuxt/latest.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-version-href]: https://npmjs.com/package/@prisma/nuxt
-[npm-downloads-src]: https://img.shields.io/npm/dm/@prisma/nuxt.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-downloads-href]: https://npmjs.com/package/@prisma/nuxt
-[license-src]: https://img.shields.io/npm/l/@prisma/nuxt.svg?style=flat&colorA=020420&colorB=00DC82
-[license-href]: https://npmjs.com/package/@prisma/nuxt
-[nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js
-[nuxt-href]: https://nuxt.com
+### Development Tools
+
+```typescript
+devtools: {
+  enableStudio?: boolean,    // Enable Prisma Studio
+  studioPort?: number,      // Port for Prisma Studio
+}
+```
+
+### Setup Options
+
+```typescript
+setup: {
+  autoSetup?: boolean,       // Auto-setup without prompts
+  skipPrompts?: boolean,    // Skip all prompts
+  generateClient?: boolean, // Generate Prisma client
+  runMigration?: boolean,  // Run database migrations
+  formatSchema?: boolean,   // Format Prisma schema
+}
+```
+
+## 🎯 Usage
+
+### Using the Prisma Client
+
+```vue
+<script setup>
+// In server components
+const prisma = usePrismaClient()
+const posts = await prisma.post.findMany()
+
+// With configuration
+const { client: prisma, config } = usePrismaConfig()
+</script>
+```
+
+### Server API Routes
+
+```typescript
+// server/api/posts.get.ts
+export default defineEventHandler(async (event) => {
+  const prisma = usePrismaClient()
+  return await prisma.post.findMany({
+    include: {
+      author: true,
+    },
+  })
+})
+```
+
+### Client-side Usage
+
+```vue
+<script setup>
+// In client components
+const { data: posts } = await $fetch('/api/posts')
+</script>
+```
+
+## 🚀 Database Setup
+
+The module uses `npx create-db` to automatically create a Prisma Postgres database:
+
+```bash
+# The module automatically runs this command
+npx create-db@latest --json
+```
+
+If `create-db` is not available, it falls back to Docker:
+
+```bash
+# Fallback Docker setup
+docker run --name nuxt-prisma-postgres \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=nuxt_prisma \
+  -p 5432:5432 \
+  -d postgres:15
+```
+
+## 🔌 Driver Adapters
+
+### PostgreSQL with pg adapter
+
+```typescript
+prisma: {
+  useDriverAdapter: true,
+  driverAdapter: 'pg',
+}
+```
+
+### Neon Serverless
+
+```typescript
+prisma: {
+  useDriverAdapter: true,
+  driverAdapter: 'neon',
+}
+```
+
+### PlanetScale
+
+```typescript
+prisma: {
+  useDriverAdapter: true,
+  driverAdapter: 'planetscale',
+}
+```
+
+## 🎨 Prisma Studio Integration
+
+Prisma Studio is automatically integrated into Nuxt DevTools:
+
+1. Start your development server: `npm run dev`
+2. Open Nuxt DevTools
+3. Look for the Prisma tab in the server section
+4. Click to open Prisma Studio
+
+## 📝 Example Schema
+
+```prisma
+// prisma/schema.prisma
+generator client {
+  provider   = "prisma-client"
+  output     = "./generated/prisma"
+  engineType = "client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts     Post[]
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+}
+```
+
+## 🚀 Deployment
+
+### NuxtHub Deployment
+
+```typescript
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['@prisma/nuxt'],
+  
+  prisma: {
+    database: {
+      provider: 'postgresql',
+      url: process.env.DATABASE_URL, // From NuxtHub
+    },
+    prisma: {
+      useDriverAdapter: true,
+      driverAdapter: 'pg',
+    },
+  },
+})
+```
+
+### Vercel Deployment
+
+```typescript
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['@prisma/nuxt'],
+  
+  prisma: {
+    database: {
+      provider: 'postgresql',
+      url: process.env.DATABASE_URL,
+    },
+    prisma: {
+      useDriverAdapter: true,
+      driverAdapter: 'neon', // Use Neon for Vercel
+    },
+  },
+})
+```
+
+## 🔄 Migration from Previous Version
+
+If you're upgrading from the previous version:
+
+1. Update your configuration to use the new structure
+2. Remove old Prisma client imports
+3. Use the new composables: `usePrismaClient()` and `usePrismaConfig()`
+4. Update your schema to use `prisma-client` generator
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔗 Links
+
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [Nuxt Documentation](https://nuxt.com/docs)
+- [Rust-Free Prisma Guide](https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/no-rust-engine)

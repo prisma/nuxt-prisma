@@ -1,7 +1,5 @@
 export default defineNuxtConfig({
   modules: ['../src/module'],
-  prisma: {
-    
-  },
+  prisma: {},
   devtools: { enabled: true },
 })

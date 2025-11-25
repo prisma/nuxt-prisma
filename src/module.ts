@@ -1,53 +1,46 @@
-import { defineNuxtModule, createResolver } from "@nuxt/kit";
+import {
+  defineNuxtModule,
+  createResolver,
+  addServerImportsDir,
+} from "@nuxt/kit";
 import { addCustomTab } from "@nuxt/devtools-kit";
-import defu from "defu";
-import fs from "fs";
-import pathe from "pathe";
-
-import {
-  checkIfMigrationsFolderExists,
-  checkIfPrismaSchemaExists,
-  formatSchema,
-  initPrisma,
-  startPrismaStudio,
-  runMigration,
-  writeClientInLib,
-  generatePrismaClient,
-  provisionPrismaDatabase,
-} from "./package-utils/setup-helpers";
-import { PREDEFINED_LOG_MESSAGES } from "./package-utils/log-helpers";
-import {
-  promptUserForPrismaMigrate,
-  promptUserForCreateDb,
-} from "./package-utils/prompts";
+import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { consola } from "consola";
 
+import {
+  initPrisma,
+  formatSchema,
+  startPrismaStudio,
+  generatePrismaClient,
+} from "./package-utils/setup-helpers";
+
+export type DatasourceProvider =
+  | "postgresql"
+  | "mysql"
+  | "sqlite"
+  | "sqlserver"
+  | "cockroachdb";
+
 interface ModuleOptions {
+  /** Prisma init options */
   init?: {
-    datasourceProvider?:
-      | "postgresql"
-      | "mysql"
-      | "sqlite"
-      | "sqlserver"
-      | "mongodb"
-      | "cockroachdb";
+    datasourceProvider?: DatasourceProvider;
     schemaPath?: string;
     output?: string;
     generatorProvider?: string;
     previewFeatures?: string[];
     url?: string;
+    /** Provisions a Prisma Postgres database on the Prisma Data Platform via --db flag */
+    db?: boolean;
+    /** Adds example User model to the created schema file via --with-model flag */
+    withModel?: boolean;
   };
-  devtools?: {
-    enableStudio?: boolean;
-    studioPort?: number;
-  };
-  setup?: {
-    autoSetup?: boolean;
-    skipPrompts?: boolean;
-    generateClient?: boolean;
-    runMigration?: boolean;
-    formatSchema?: boolean;
-    createPrismaPostgres?: boolean;
+  /** Prisma Studio options */
+  studio?: {
+    /** Enable Prisma Studio in devtools (default: true) */
+    enabled?: boolean;
+    /** Port for Prisma Studio (default: 5555) */
+    port?: number;
   };
 }
 
@@ -65,115 +58,83 @@ export default defineNuxtModule<PrismaNuxtModule>({
     init: {
       datasourceProvider: "postgresql",
       schemaPath: "./prisma/schema.prisma",
-      output: "../generated",
+      output: "../generated/prisma",
+      generatorProvider: "prisma-client",
+      db: false,
+      withModel: false,
     },
-    devtools: {
-      enableStudio: true,
-      studioPort: 5555,
-    },
-    setup: {
-      autoSetup: false,
-      skipPrompts: false,
-      generateClient: true,
-      runMigration: true,
-      formatSchema: true,
-      createPrismaPostgres: true,
+    studio: {
+      enabled: true,
+      port: 5555,
     },
   },
 
   async setup(options, nuxt) {
     const { resolve: resolveProject } = createResolver(nuxt.options.rootDir);
-    const { resolve: r } = createResolver(import.meta.url);
-
     const npmLifecycleEvent = process.env?.npm_lifecycle_event;
-    const skipAllPrompts =
-      options.setup?.skipPrompts || npmLifecycleEvent === "dev:build";
 
+    // Skip during postinstall or when SKIP_PRISMA_SETUP is set
     const isModuleBuild = nuxt.options.rootDir.endsWith("/nuxt-prisma");
-    const forceSkipPrismaSetup =
+    const shouldSkip =
       process.env?.SKIP_PRISMA_SETUP ||
+      npmLifecycleEvent === "postinstall" ||
       (isModuleBuild && !nuxt.options.rootDir.includes("playground"));
 
-    nuxt.options.runtimeConfig.public.prisma = defu(
-      nuxt.options.runtimeConfig.public.prisma || {},
-      {
-        prisma: options.init,
-      },
-    );
-
-    const prepareModule = () => {
-      nuxt.options.experimental.componentIslands ||= {};
-      nuxt.options.experimental.componentIslands = true;
-
-      nuxt.options.vite.optimizeDeps = defu(
-        nuxt.options.vite.optimizeDeps || {},
-        {
-          include: ["@prisma/nuxt > @prisma/client"],
-        },
-      );
-    };
-
-    if (forceSkipPrismaSetup || npmLifecycleEvent === "postinstall") {
-      if (npmLifecycleEvent !== "postinstall") {
-        consola.warn(PREDEFINED_LOG_MESSAGES.PRISMA_SETUP_SKIPPED_WARNING);
-      }
-      prepareModule();
+    if (shouldSkip) {
       return;
     }
 
     const PROJECT_PATH = resolveProject();
-    const PRISMA_SCHEMA_PATH =
-      options.init?.schemaPath || "./prisma/schema.prisma";
-    const PRISMA_SCHEMA_CMD = ["--schema", PRISMA_SCHEMA_PATH];
+    const PRISMA_SCHEMA_PATH = options.init?.schemaPath || "./prisma/schema.prisma";
     const FULL_SCHEMA_PATH = resolveProject(PRISMA_SCHEMA_PATH);
+    const prismaSchemaExists = existsSync(FULL_SCHEMA_PATH);
 
-    const prismaSchemaExists = checkIfPrismaSchemaExists([FULL_SCHEMA_PATH]);
+    const datasourceProvider = options.init?.datasourceProvider || "postgresql";
+    const usePrismaPostgres = options.init?.db === true;
+    const outputPath = options.init?.output || "../generated/prisma";
 
-    const prismaInitWorkflow = async () => {
-      if (prismaSchemaExists) return;
+    // 1. Initialize Prisma if schema doesn't exist
+    if (!prismaSchemaExists) {
       await initPrisma({
         directory: PROJECT_PATH,
-        rootDir: PROJECT_PATH,
-        datasourceProvider: options.init?.datasourceProvider || "postgresql",
-        generatorProvider: options.init?.generatorProvider,
+        datasourceProvider: usePrismaPostgres ? undefined : datasourceProvider,
+        generatorProvider: options.init?.generatorProvider || "prisma-client",
         previewFeatures: options.init?.previewFeatures,
-        output: options.init?.output,
+        output: outputPath,
         url: options.init?.url,
+        db: usePrismaPostgres,
+        withModel: options.init?.withModel,
       });
-    };
+    }
 
-    const prismaMigrateWorkflow = async () => {
-      const migrationFolderExists = checkIfMigrationsFolderExists(
-        resolveProject("./prisma/migrations"),
-      );
-      if (migrationFolderExists || !options.setup?.runMigration) {
-        consola.info(PREDEFINED_LOG_MESSAGES.skipMigrations);
-        return;
-      }
-      const migrateAndFormatSchema = async () => {
-        await runMigration(PROJECT_PATH, PRISMA_SCHEMA_CMD);
-        if (options.setup?.formatSchema) {
-          await formatSchema(PROJECT_PATH, PRISMA_SCHEMA_CMD);
-        }
-      };
-      if (options.setup?.autoSetup) {
-        await migrateAndFormatSchema();
-        return;
-      }
-      if (skipAllPrompts) return;
-      const shouldMigrate = await promptUserForPrismaMigrate(true);
-      if (shouldMigrate) {
-        await migrateAndFormatSchema();
-      }
-    };
+    // 2. Format Prisma schema
+    const schemaCmd = ["--schema", PRISMA_SCHEMA_PATH];
+    await formatSchema(PROJECT_PATH, schemaCmd);
 
-    const prismaStudioWorkflow = async () => {
-      if (!options.devtools?.enableStudio || npmLifecycleEvent !== "dev") {
-        consola.info(PREDEFINED_LOG_MESSAGES.skipInstallingPrismaStudio);
-        return;
-      }
-      const studioPort = options.devtools?.studioPort || 5555;
-      await startPrismaStudio(PROJECT_PATH, PRISMA_SCHEMA_CMD, studioPort);
+    // 3. Generate Prisma Client (only if not already generated)
+    const generatedPath = resolveProject(outputPath);
+    if (!existsSync(generatedPath)) {
+      await generatePrismaClient(PROJECT_PATH, schemaCmd);
+    }
+
+    // 4. Create server/utils/prisma.ts (only for PostgreSQL)
+    if (usePrismaPostgres || datasourceProvider === "postgresql") {
+      const adapterPkg = usePrismaPostgres ? "@prisma/adapter-ppg" : "@prisma/adapter-pg";
+      const adapterClass = usePrismaPostgres ? "PrismaPostgresAdapter" : "PrismaPg";
+      
+      writePrismaUtil(PROJECT_PATH, outputPath, adapterPkg, adapterClass);
+      
+      consola.box(`[Prisma] Install required packages:\nbun add prisma @prisma/client ${adapterPkg}`);
+    }
+
+    // 5. Register server utils for auto-imports
+    addServerImportsDir(resolveProject("server/utils"));
+
+    // 6. Start Prisma Studio (only in dev mode)
+    if (options.studio?.enabled && npmLifecycleEvent === "dev") {
+      const studioPort = options.studio?.port || 5555;
+      await startPrismaStudio(PROJECT_PATH, schemaCmd, studioPort);
+
       addCustomTab({
         name: "nuxt-prisma",
         title: "Prisma Studio",
@@ -185,101 +146,58 @@ export default defineNuxtModule<PrismaNuxtModule>({
           persistent: true,
         },
       });
-      consola.info(
-        `[Nuxt Prisma] Prisma Studio is available at http://localhost:${studioPort}`,
-      );
-    };
 
-    const isDatabaseUrlPlaceholder = (url: string): boolean => {
-      return (
-        url.includes("johndoe:randompassword@localhost") ||
-        url.includes("postgresql://johndoe") ||
-        url.includes("mysql://johndoe") ||
-        url.includes("file:./dev.db")
-      );
-    };
-
-    const databaseProvisionWorkflow = async () => {
-      const { existsSync, readFileSync, writeFileSync } = fs;
-      const { join } = pathe;
-      const rootEnvPath = join(PROJECT_PATH, ".env");
-
-      let hasRealDatabaseUrl = false;
-      if (existsSync(rootEnvPath)) {
-        const envContent = readFileSync(rootEnvPath, "utf-8");
-        const dbUrlMatch = envContent.match(/DATABASE_URL="?([^"\n]+)"?/);
-        if (dbUrlMatch && dbUrlMatch[1]) {
-          hasRealDatabaseUrl = !isDatabaseUrlPlaceholder(dbUrlMatch[1]);
-        }
-      }
-      if (hasRealDatabaseUrl || options.setup?.createPrismaPostgres === false) {
-        return null;
-      }
-      if (
-        options.setup?.autoSetup &&
-        options.setup?.createPrismaPostgres === true
-      ) {
-        const dbInfo = await provisionPrismaDatabase(PROJECT_PATH);
-        if (dbInfo?.directConnectionString) {
-          let envContent = existsSync(rootEnvPath)
-            ? readFileSync(rootEnvPath, "utf-8")
-            : "";
-          if (envContent.includes("DATABASE_URL=")) {
-            envContent = envContent.replace(
-              /DATABASE_URL="[^"]*"/,
-              `DATABASE_URL="${dbInfo.directConnectionString}"`,
-            );
-          } else {
-            if (envContent && !envContent.endsWith("\n")) envContent += "\n";
-            envContent += `DATABASE_URL="${dbInfo.directConnectionString}"\n`;
-          }
-          writeFileSync(rootEnvPath, envContent);
-          consola.success("Prisma Postgres database created and configured!");
-          consola.info(`Prisma Postgres claim URL: ${dbInfo.claimUrl}`);
-        }
-        return { shouldPromptMigrate: false, shouldProvision: true };
-      }
-      if (!skipAllPrompts && !options.setup?.autoSetup) {
-        const shouldCreatePrismaPostgres =
-          (options.setup?.createPrismaPostgres ?? true) === true
-            ? await promptUserForCreateDb(true)
-            : false;
-        if (shouldCreatePrismaPostgres) {
-          const dbInfo = await provisionPrismaDatabase(PROJECT_PATH);
-          if (dbInfo?.directConnectionString) {
-            let envContent = existsSync(rootEnvPath)
-              ? readFileSync(rootEnvPath, "utf-8")
-              : "";
-            if (envContent.includes("DATABASE_URL=")) {
-              envContent = envContent.replace(
-                /DATABASE_URL="[^"]*"/,
-                `DATABASE_URL="${dbInfo.directConnectionString}"`,
-              );
-            } else {
-              if (envContent && !envContent.endsWith("\n")) envContent += "\n";
-              envContent += `DATABASE_URL="${dbInfo.directConnectionString}"\n`;
-            }
-            writeFileSync(rootEnvPath, envContent);
-            consola.success("Prisma Postgres database created and configured!");
-            consola.info(`Prisma Postgres claim URL: ${dbInfo.claimUrl}`);
-          }
-        }
-        return { provisioned: shouldCreatePrismaPostgres };
-      }
-      return null;
-    };
-
-    await prismaInitWorkflow();
-    await databaseProvisionWorkflow();
-    await prismaMigrateWorkflow();
-
-    await writeClientInLib(PROJECT_PATH, options.init?.output);
-
-    if (options.setup?.generateClient) {
-      await generatePrismaClient(PROJECT_PATH, PRISMA_SCHEMA_CMD);
+      consola.info(`[Nuxt Prisma] Studio available at http://localhost:${studioPort}`);
     }
-
-    await prismaStudioWorkflow();
-    prepareModule();
   },
 });
+
+function writePrismaUtil(
+  projectPath: string,
+  outputPath: string,
+  adapterPkg: string,
+  adapterClass: string
+) {
+  const serverUtilsDir = `${projectPath}/server/utils`;
+  const utilPath = `${serverUtilsDir}/prisma.ts`;
+
+  // Skip if file already exists
+  if (existsSync(utilPath)) {
+    consola.info("[Prisma] server/utils/prisma.ts already exists, skipping");
+    return;
+  }
+
+  // Path from server/utils to generated prisma client
+  const clientImportPath = `../../${outputPath.replace(/^\.\.\//, "")}`;
+
+  const fileContent = `import { ${adapterClass} } from '${adapterPkg}'
+import { PrismaClient } from '${clientImportPath}/client'
+
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
+
+function createPrismaClient() {
+  const adapter = new ${adapterClass}({ connectionString: process.env.DATABASE_URL })
+  return new PrismaClient({ adapter })
+}
+
+export const prisma = globalForPrisma.prisma ?? createPrismaClient()
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma
+}
+
+export function usePrisma() {
+  return prisma
+}
+`;
+
+  try {
+    if (!existsSync(serverUtilsDir)) {
+      mkdirSync(serverUtilsDir, { recursive: true });
+    }
+    writeFileSync(utilPath, fileContent);
+    consola.success("[Prisma] Created server/utils/prisma.ts");
+  } catch (err) {
+    consola.error("[Prisma] Failed to create server/utils/prisma.ts", err);
+  }
+}

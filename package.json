@@ -1,7 +1,7 @@
 {
   "name": "@prisma/nuxt",
-  "version": "0.0.34",
-  "description": "Integrate Nuxt with Prisma",
+  "version": "0.0.35",
+  "description": "Prisma ORM integration for Nuxt",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/prisma/nuxt-prisma.git"
@@ -16,7 +16,6 @@
     }
   },
   "main": "./dist/module.cjs",
-  "types": "./dist/types.d.ts",
   "files": [
     "dist"
   ],
@@ -25,13 +24,11 @@
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "docs": "cd docs && npm run dev",
     "release": "npm run lint && npm run prepack && changelogen --release && npm publish --access public && git push --follow-tags",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "link": "npm link",
-    "clean:playground": "rm -rf ./playground/prisma ./playground/lib ./playground/node_modules ./playground/prisma.config.ts ./playground/.env ./playground/generated",
+    "clean:playground": "rm -rf ./playground/prisma ./playground/node_modules ./playground/prisma.config.ts ./playground/.env ./playground/generated ./playground/server ./playground/.nuxt",
     "prepare": "husky install",
     "commit": "npx git-cz",
     "commitlint": "commitlint --edit"
@@ -39,39 +36,44 @@
   "dependencies": {
     "@nuxt/devtools-kit": "^3.0.0",
     "@nuxt/kit": "^4.2.0",
-    "@prisma/adapter-pg": "^6.16.0",
-    "@prisma/client": "^6.18.0",
-    "@prisma/extension-accelerate": "^2.0.2",
     "consola": "^3.4.2",
-    "defu": "^6.1.4",
-    "dotenv": "^17.2.3",
-    "pathe": "^1.1.2",
-    "tinyexec": "^1.0.1",
-    "tinyrainbow": "^3.0.3",
-    "undici": "^6.19.0"
+    "tinyexec": "^1.0.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
     "@commitlint/cz-commitlint": "^19.5.0",
     "@nuxt/devtools": "^3.0.0",
-    "@nuxt/eslint-config": "^1.9.0",
+    "@nuxt/eslint-config": "^1.10.0",
     "@nuxt/module-builder": "^1.0.2",
     "@nuxt/schema": "^4.2.0",
-    "@nuxt/test-utils": "^3.11.2",
-    "@types/node": "^20.11.17",
-    "@types/prompts": "^2.4.9",
+    "@nuxt/test-utils": "^3.20.1",
+    "@prisma/adapter-pg": "^7.0.0",
+    "@prisma/client": "^7.0.0",
+    "@types/node": "^22.0.0",
     "changelogen": "^0.5.5",
     "commitizen": "^4.3.1",
     "cz-customizable": "^7.2.1",
-    "eslint": "^8.56.0",
+    "eslint": "^9.0.0",
     "husky": "^8.0.0",
-    "inquirer": "^9.3.7",
     "nuxt": "^4.2.0",
     "prettier": "3.2.5",
-    "prisma": "^6.18.0",
-    "semantic-release": "^24.2.0",
-    "vitest": "^1.2.2"
+    "prisma": "^7.0.0",
+    "vitest": "^3.2.0"
+  },
+  "peerDependencies": {
+    "prisma": "^7.0.0",
+    "@prisma/client": "^7.0.0",
+    "@prisma/adapter-pg": "^7.0.0",
+    "@prisma/adapter-ppg": "^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@prisma/adapter-pg": {
+      "optional": true
+    },
+    "@prisma/adapter-ppg": {
+      "optional": true
+    }
   },
   "config": {
     "commitizen": {

@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "my-module-playground",
+  "name": "nuxt-prisma-playground",
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",
@@ -9,5 +9,7 @@
   },
   "dependencies": {
     "nuxt": "^4.2.0"
+  },
+  "devDependencies": {
   }
 }

@@ -34,7 +34,7 @@ jobs:
 
       # Step 4: Install dependencies
       - name: Install Dependencies
-        run: npm clean-install
+        run: npm install
 
       # Step 5: Prepare project
       - name: Prepare Project

@@ -25,7 +25,7 @@ jobs:
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_NUXT_TOKEN }}" >> ~/.npmrc
           echo "@prisma:registry=https://registry.npmjs.org/" >> ~/.npmrc
-      - run: npm clean-install
+      - run: npm install
       - run: npx nuxi prepare
       - run: npm run dev:build
       - run: npm run lint

@@ -88,7 +88,7 @@ export async function generatePrismaClient(directory: string, schemaPath: string
   consola.info("[Prisma] Generating client...");
 
   try {
-    const { stderr, exitCode } = await x("npx", ["prisma", "generate", ...schemaPath], {
+    const { exitCode } = await x("npx", ["prisma", "generate", ...schemaPath], {
       nodeOptions: { cwd: directory, shell: true, stdio: "inherit" },
     });
 

@@ -22,7 +22,6 @@ export type DatasourceProvider =
   | "cockroachdb";
 
 interface ModuleOptions {
-  /** Prisma init options */
   init?: {
     datasourceProvider?: DatasourceProvider;
     schemaPath?: string;
@@ -30,7 +29,6 @@ interface ModuleOptions {
     generatorProvider?: string;
     previewFeatures?: string[];
     url?: string;
-    /** Provisions a Prisma Postgres database on the Prisma Data Platform via --db flag */
     db?: boolean;
     /** Adds example User model to the created schema file via --with-model flag */
     withModel?: boolean;

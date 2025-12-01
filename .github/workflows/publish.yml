@@ -3,8 +3,10 @@ on:
   push:
     branches:
       - main
+
 permissions:
-  contents: read # for checkout
+  contents: read
+
 jobs:
   release:
     name: Release
@@ -13,27 +15,31 @@ jobs:
       contents: write # to be able to publish a GitHub release
       issues: write # to be able to comment on released issues
       pull-requests: write # to be able to comment on released pull requests
-      id-token: write # to enable use of OIDC for npm provenance
+      id-token: write # required for OIDC / Trusted Publishers
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
-      - name: Configure npm for Authentication
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_NUXT_TOKEN }}" >> ~/.npmrc
-          echo "@prisma:registry=https://registry.npmjs.org/" >> ~/.npmrc
+          registry-url: "https://registry.npmjs.org"
+
+      # Update npm to support Trusted Publishers
+      - name: Update npm
+        run: npm install -g npm
+
       - run: npm install
       - run: npx nuxi prepare
       - run: npm run dev:build
       - run: npm run lint
       - run: npm run prepack
+
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: npm audit signatures
+
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_NUXT_TOKEN }}
         run: npx semantic-release

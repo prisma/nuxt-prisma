@@ -28,7 +28,7 @@ jobs:
 
       # Update npm to support Trusted Publishers
       - name: Update npm
-        run: npm install -g npm
+        run: npm install -g npm@11.5.1
 
       - run: npm install
       - run: npx nuxi prepare

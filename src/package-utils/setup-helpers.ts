@@ -63,7 +63,7 @@ export async function initPrisma({
     consola.error("[Prisma] Failed to initialize project.", stderr);
     return false;
   }
-
+  
   consola.success("[Prisma] Project initialized.");
   return true;
 }
@@ -74,7 +74,7 @@ export async function formatSchema(directory: string, schemaPath: string[]) {
   const { stderr, exitCode } = await x("npx", ["prisma", "format", ...schemaPath], {
     nodeOptions: { cwd: directory, shell: true, stdio: "inherit" },
   });
-
+  
   if (exitCode !== 0) {
     consola.error("[Prisma] Failed to format schema.", stderr);
     return false;
@@ -92,11 +92,11 @@ export async function generatePrismaClient(directory: string, schemaPath: string
       nodeOptions: { cwd: directory, shell: true, stdio: "inherit" },
     });
 
-    if (exitCode !== 0) {
+  if (exitCode !== 0) {
       // Non-blocking - user can run prisma generate manually
       consola.warn("[Prisma] Run 'npx prisma generate' after setup completes");
       return false;
-    }
+  }
 
     consola.success("[Prisma] Client generated.");
     return true;

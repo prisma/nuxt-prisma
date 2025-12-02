@@ -37,13 +37,6 @@ jobs:
       - name: Verify the integrity of provenance attestations and registry signatures
         run: npm audit signatures
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/
-          retention-days: 1
-
   release:
     name: Release
     needs: build
@@ -69,12 +62,7 @@ jobs:
         run: npm install -g npm@11.5.1
 
       - run: npm install
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
+      - run: npx nuxi prepare
 
       - name: Release
         env:
@@ -104,12 +92,7 @@ jobs:
         run: npm install -g npm@11.5.1
 
       - run: npm install
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
+      - run: npx nuxi prepare
 
       - name: Set Experimental Version
         run: npm version --no-git-tag-version 0.0.0-experimental-${GITHUB_SHA::7}

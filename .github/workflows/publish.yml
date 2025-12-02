@@ -94,8 +94,11 @@ jobs:
       - run: npm install
       - run: npx nuxi prepare
 
+      - name: Build module
+        run: npm run prepack
+
       - name: Set Experimental Version
         run: npm version --no-git-tag-version 0.0.0-experimental-${GITHUB_SHA::7}
 
       - name: Publish Experimental Release
-        run: npm publish --access public --tag experimental
+        run: npm publish --access public --tag experimental --ignore-scripts

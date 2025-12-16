@@ -1,5 +1,7 @@
 # Nuxt Prisma
 
+> **Deprecated:** This Nuxt module is no longer actively maintained and is being deprecated. Existing projects can continue to use it as-is, but we don't recommend starting new projects with this module. For new projects, please follow the [official Prisma Nuxt guide](https://www.prisma.io/docs/guides/nuxt).
+
 [![npm version][npm-version-src]][npm-version-href] [![npm downloads][npm-downloads-src]][npm-downloads-href] [![License][license-src]][license-href] [![Nuxt][nuxt-src]][nuxt-href]
 
 Are you a Nuxt developer? Or are you familiar with Prisma ORM and want to use it easily with Nuxt? Then this module is for you.
